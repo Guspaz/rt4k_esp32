@@ -1,0 +1,21 @@
+<html>
+<head><script type="text/javascript" src='showdown.min.js'></script></head>
+<body>
+<script>
+var converter = new showdown.Converter(); text = `
+
+# RT4K SD Wifi
+
+## Debug Log
+
+`; document.write(converter.makeHtml(text));
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "log", false);
+    xhttp.send();
+    if (xhttp.status === 200) {
+        document.write(xhttp.responseText);
+    }
+
+</script>
+</body></html>
