@@ -1,10 +1,22 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
 
 namespace rt4k_esp32
 {
     internal class WebInterface
     {
+        internal delegate void LogDelegate(string message);
+
+        private readonly FileManager fm;
+        private readonly LogDelegate Log;
+
+        public WebInterface(FileManager fileManager, LogDelegate log)
+        {
+            fm = fileManager;
+            Log = log;
+        }
+
         public void Route(HttpListenerContext context)
         {
             context.Response.ContentType = "text/html";
@@ -15,10 +27,13 @@ namespace rt4k_esp32
             {
                 case "/":
                 case "/index.htm":
-                    using (var sw = new StreamWriter(context.Response.OutputStream))
-                    {
-                        sw.Write(WebFiles.GetString(WebFiles.StringResources.index));
-                    }
+                    SendIndex(context);
+                    break;
+                case "/?disableWifi":
+                    Log(" ***** Disabling wifi next boot, remove and re-insert SD card to reboot it");
+                    File.Create("I:\\disableWifi");
+
+                    Redirect(context, "/");
                     break;
                 case "/showdown.min.js":
                     // Special case, this js library is pre-gzipped
@@ -42,8 +57,28 @@ namespace rt4k_esp32
                     }
                     break;
                 default:
-                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    SendEmptyResponse(context, HttpStatusCode.NotFound);
                     break;
+            }
+        }
+
+        private void Redirect(HttpListenerContext context, string url)
+        {
+            context.Response.Headers.Add("Location", url);
+            SendEmptyResponse(context, HttpStatusCode.TemporaryRedirect);
+        }
+
+        private void SendEmptyResponse(HttpListenerContext context, HttpStatusCode statusCode)
+        {
+            context.Response.StatusCode = (int)statusCode;
+            context.Response.ContentLength64 = 0;
+        }
+
+        private void SendIndex(HttpListenerContext context)
+        {
+            using (var sw = new StreamWriter(context.Response.OutputStream))
+            {
+                sw.Write(WebFiles.GetString(WebFiles.StringResources.index));
             }
         }
     }

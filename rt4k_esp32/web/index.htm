@@ -6,16 +6,17 @@ var converter = new showdown.Converter(); text = `
 
 # RT4K SD Wifi
 
+<input type="button" onclick="location.href='?disableWifi';" value="Disable wifi next boot" />
+
 ## Debug Log
 
 `; document.write(converter.makeHtml(text));
 
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "log", false);
-    xhttp.send();
-    if (xhttp.status === 200) {
-        document.write(xhttp.responseText);
-    }
-
+var xhttp = new XMLHttpRequest();
+xhttp.open("GET", "log", false);
+xhttp.send();
+if (xhttp.status === 200) {
+    document.write(xhttp.responseText);
+}
 </script>
 </body></html>

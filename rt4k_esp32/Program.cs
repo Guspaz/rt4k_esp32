@@ -5,6 +5,7 @@ using System.Collections;
 using nanoFramework.Hardware.Esp32;
 using nanoFramework.Runtime.Native;
 using System.Net;
+using System.IO;
 
 namespace rt4k_esp32
 {
@@ -20,7 +21,7 @@ namespace rt4k_esp32
         {
             webLog = new Queue();
             Log("RT4K SD booting. Hello from the .NET nanoFramework!");
-            
+
 
             //// Dump the boot log to ONLY the debug log if it exists
             //try
@@ -42,10 +43,6 @@ namespace rt4k_esp32
 
             // The GPIO controller used by FileManager can't be initialized in a constructor, so delay creating it to here.
 
-            sdManager = new SdManager(Log);
-            fileManager = new FileManager(Log, sdManager);
-            wifiManager = new WifiManager(Log, fileManager);
-
             NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.Internal, out uint totalInt, out _, out _);
             NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.SpiRam, out uint totalSpi, out _, out _);
 
@@ -56,19 +53,27 @@ namespace rt4k_esp32
             Log($"Version: {SystemInfo.Version}");
             Log($"FPU: {(int)SystemInfo.FloatingPointSupport switch { 0 => "None", 1 => "SinglePrecisionSoftware", 2 => "SinglePrecisionHardware", 3 => "DoublePrecisionSoftware", 4 => "DoublePrecisionHardware", _ => "Unknown" }}");
 
+            if (File.Exists("I:\\disableWifi"))
+            {
+                File.Delete("I:\\disableWifi");
+                Log("disableWifi file detected, disabling wifi until next boot");
+                Thread.Sleep(Timeout.Infinite);
+            }
+
+            sdManager = new SdManager(Log);
+            fileManager = new FileManager(Log, sdManager);
+            wifiManager = new WifiManager(Log, fileManager);
+
             wifiManager.WifiBoot();
 
-            var webInterface = new WebInterface();
+            var webInterface = new WebInterface(fileManager, Log);
             StartServer(80, "WebUI", webInterface.Route);
 
             var webDAV = new WebDav(fileManager, Log);
             StartServer(81, "WebDAV", webDAV.Route);
 
             // TODO: Do we need to keep this thread alive?
-            while (true)
-            {
-                Thread.Sleep(Timeout.Infinite);
-            }
+            Thread.Sleep(Timeout.Infinite);
         }
 
         public delegate void RouteDelegate(HttpListenerContext context);
@@ -96,7 +101,11 @@ namespace rt4k_esp32
                             {
                                 Log($"{name}: {context.Request.HttpMethod} {context.Request.RawUrl}");
                                 route(context);
-                                Log($"Response: {context.Response.StatusCode}");
+
+                                if (context.Response.StatusCode != (int)HttpStatusCode.OK)
+                                {
+                                    Log($"Response: {context.Response.StatusCode}");
+                                }
                             }
                             catch (Exception ex)
                             {
