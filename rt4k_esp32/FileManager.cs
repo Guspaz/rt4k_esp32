@@ -2,7 +2,9 @@
 using System.Collections;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Threading;
+using nanoFramework.Hardware.Esp32;
 
 namespace rt4k_esp32
 {
@@ -16,6 +18,8 @@ namespace rt4k_esp32
         private readonly LogDelegate Log;
         private readonly SdManager sdManager;
         private readonly Stack writeQueue = new();
+        private readonly FileStream dummyFileStream;
+        private readonly MethodInfo getLengthNative;
 
         internal FileManager(LogDelegate logFunc, SdManager sdManager)
         {
@@ -24,6 +28,10 @@ namespace rt4k_esp32
             Log("FileManager starting up");
 
             this.sdManager = sdManager;
+
+            // We just need a FileStream to reflect into
+            dummyFileStream = new("I:\\dummyFile", FileMode.OpenOrCreate);
+            getLengthNative = dummyFileStream.GetType().GetMethod("GetLengthNative", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         internal string ReadFile(string path, bool instantRelease = false)
@@ -362,13 +370,12 @@ namespace rt4k_esp32
 
                 var fileProperties = new FileProperties();
 
-                // TODO: There's got to be a better way to do this.
-                using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                    fileProperties.FileSize = fileStream.Length;
+                
+                fileProperties.FileSize = GetLengthInternal(path);
 
                 //var storageFile = StorageFile.GetFileFromPath(path);
 
-                // TODO: Figure out how to get created dates, this doesn't .
+                // TODO: Figure out how to get created dates, this doesn't work.
                 //fileProperties.CreatedDate = storageFile.DateCreated;
                 //fileProperties.ContentType = storageFile.ContentType;
                 fileProperties.LastModifiedDate = File.GetLastWriteTime(path);
@@ -453,5 +460,11 @@ namespace rt4k_esp32
         private string SdToPath(string path) => path.Substring(ROOT_PATH.Length).Replace('\\', '/');
 
         internal void QueueWrite(string path, string content) => writeQueue.Push(new DictionaryEntry(path, content));
+
+        // This is roughly twice as fast as initializing a new FileStream every time
+        internal long GetLengthInternal(string path)
+        {
+            return (long)getLengthNative.Invoke(dummyFileStream, new string[] { Path.GetDirectoryName(path), Path.GetFileName(path) });
+        }
     }
 }

@@ -37,9 +37,9 @@ namespace rt4k_esp32
             context.Response.Headers.Add("DAV", "1");
             //context.Response.Headers.Add("Accept-Ranges", "bytes");
 
-            //foreach (var headerName in e.Context.Request.Headers.AllKeys)
+            //foreach (var headerName in context.Request.Headers.AllKeys)
             //{
-            //    Log($"{headerName}: {e.Context.Request.Headers[headerName]}");
+            //    Log($"{headerName}: {context.Request.Headers[headerName]}");
             //}
 
             switch (context.Request.HttpMethod)

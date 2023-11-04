@@ -6,7 +6,27 @@ var converter = new showdown.Converter(); text = `
 
 # RT4K SD Wifi
 
+## Commands
+
 <input type="button" onclick="location.href='?disableWifi';" value="Disable wifi next boot" />
+
+<details>
+<summary><h2>Readme</h2></summary>
+- The ESP32 will boot the moment the SD card gets power
+  - The RT4K supplies power to the SD slot even when the RT4K is off, as long as the RT4K power cable has power
+- This is going to be SLOW. Expect 120 KB/s transfer speeds over WebDAV
+- If you right-click on a file and select "Properties" in Windows, it will download the entire file (at the aformentioned 120 KB/s)
+- This thing works like the SD card is plugged into two devices at the same time, whatever you physically plugged it into, and this here ESP32
+  - Any time the ESP32 reads or writes to the SD card, it completely disconnects it from the physical host device (the RT4K, Windows PC, etc.)
+  - Windows hates that, it will unmount the SD card drive and not remount it again until you unplug and replug it
+  - The RT4K can handle it, but not during boot or firmware updates
+- In order to avoid killing the RT4K boot, the ESP32 will try to load the wifi credentials from its internal cache when it boots, NOT the SD card.
+  - It will wait 30 seconds after boot to check the wifi.ini file on the SD card to see if there are updated credentials to use
+  - If the wifi.ini file is different from the cached credentials, it will update the cache and reboot the ESP32
+  - You have 30 seconds after connecting the SD card to a Windows PC to copy in a wifi.ini file on the first boot before Windows loses the connection
+- If you want Windows to stay connected for a longer time, click the "Disable wifi until next boot" button above and unplug and replug the SD card
+  - This button will disable wifi for the next boot only, ensuring that Windows is not interrupted. When you're done, safely remove the SD card and unplug and replug it again to reconnect to wifi.
+</details>
 
 ## Debug Log
 

@@ -97,10 +97,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="web\showdown.min.js.gz" />
+    <Resource Include="web\showdown.min.js.gz" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="web\index.htm" />
+    <Resource Include="web\index.htm" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="WebFiles.resx">
