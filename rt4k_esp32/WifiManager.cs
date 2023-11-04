@@ -85,11 +85,14 @@ namespace rt4k_esp32
                     }
 
                     File.Create("I:\\wifiReboot");
-                    Thread.Sleep(2000);
-                    // TODO: Release SD on reboot?
-                    //SD_SWITCH.Write(PinValue.High);
-                    Log("Rebooting");
-                    nanoFramework.Runtime.Native.Power.RebootDevice();
+                    new Thread(() =>
+                    {
+                        Thread.Sleep(5000);
+                        // TODO: Release SD on reboot?
+                        //SD_SWITCH.Write(PinValue.High);
+                        Log("Rebooting");
+                        nanoFramework.Runtime.Native.Power.RebootDevice();
+                    }).Start();
                 }
                 else
                 {
@@ -126,7 +129,18 @@ namespace rt4k_esp32
                     {
                         WifiNetworkHelper.ConnectDhcp((string)wifiConfig["ssid"], (string)wifiConfig["password"], WifiReconnectionKind.Manual, requiresDateTime: false, token: new CancellationTokenSource(10000).Token);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Log("Exception connecting to wifi:");
+                        Log(ex.Message);
+                        Log(ex.StackTrace);
+                        if (ex.InnerException != null)
+                        {
+                            Log("Inner Exception:");
+                            Log(ex.InnerException.Message);
+                            Log(ex.InnerException.StackTrace);
+                        }
+                    }
 
                     if (WifiNetworkHelper.Status == NetworkHelperStatus.NetworkIsReady && IPGlobalProperties.GetIPAddress() != IPAddress.Any)
                     {

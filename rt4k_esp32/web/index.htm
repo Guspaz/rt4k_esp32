@@ -1,8 +1,15 @@
-<html>
-<head><script type="text/javascript" src='showdown.min.js'></script></head>
+<html><head>
+<script type="text/javascript" src='showdown.min.js'></script>
+<script>
+var converter = new showdown.Converter({
+noHeaderId: true,
+disableForced4SpacesIndentedSublists: true
+});
+</script>
+</head>
 <body>
 <script>
-var converter = new showdown.Converter(); text = `
+var text = `
 
 # RT4K SD Wifi
 
@@ -11,7 +18,7 @@ var converter = new showdown.Converter(); text = `
 <input type="button" onclick="location.href='?disableWifi';" value="Disable wifi next boot" />
 
 <details>
-<summary><h2>Readme</h2></summary>
+<summary><h2 style='display: inline;'>Readme</h2></summary>
 - The ESP32 will boot the moment the SD card gets power
   - The RT4K supplies power to the SD slot even when the RT4K is off, as long as the RT4K power cable has power
 - This is going to be SLOW. Expect 120 KB/s transfer speeds over WebDAV
@@ -31,12 +38,5 @@ var converter = new showdown.Converter(); text = `
 ## Debug Log
 
 `; document.write(converter.makeHtml(text));
-
-var xhttp = new XMLHttpRequest();
-xhttp.open("GET", "log", false);
-xhttp.send();
-if (xhttp.status === 200) {
-    document.write(xhttp.responseText);
-}
 </script>
-</body></html>
+<!-- Closing body/html tag will be sent from C# -->

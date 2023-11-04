@@ -89,7 +89,7 @@ namespace rt4k_esp32
             }
             else
             {
-                Log($"[{Thread.CurrentThread.ManagedThreadId}] Trying to hard grab SD card");
+                Log($"[{Thread.CurrentThread.ManagedThreadId}] Trying to grab SD card");
                 // Run the GC before grabbing the SD card to reduce the chance it runs while we're holding it
                 nanoFramework.Runtime.Native.GC.Run(true);
 
@@ -111,7 +111,7 @@ namespace rt4k_esp32
                     sdAvailable = IsSdAvailable();
                 }
 
-                Log($"Hard grabbed SD card after {TimeElapsed} ms");
+                Log($"Grabbed SD card after {TimeElapsed} ms");
 
                 // Reset the timer, so we can measure how long we held the SD card for
                 ResetTimer();
@@ -154,8 +154,6 @@ namespace rt4k_esp32
             isSdGrabbed = false;
             releaseTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-            Log($"[{Thread.CurrentThread.ManagedThreadId}] Hard releasing SD card");
-
             if (SDCard.IsMounted)
             {
                 SDCard.Unmount();
@@ -163,7 +161,7 @@ namespace rt4k_esp32
 
             SD_SWITCH.Write(PinValue.High);
 
-            Log($"[{Thread.CurrentThread.ManagedThreadId}] Held SD card for {TimeElapsed} ms");
+            Log($"[{Thread.CurrentThread.ManagedThreadId}] Released SD card after {TimeElapsed} ms");
         }
 
         private void LogException(Exception ex)

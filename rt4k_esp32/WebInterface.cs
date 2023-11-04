@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Net;
+using nanoFramework.Hardware.Esp32;
 
 namespace rt4k_esp32
 {
@@ -9,11 +11,15 @@ namespace rt4k_esp32
 
         private readonly FileManager fm;
         private readonly LogDelegate Log;
+        byte[] showdownJs;
 
         public WebInterface(FileManager fileManager, LogDelegate log)
         {
             fm = fileManager;
             Log = log;
+
+            // Pre-cache the showdown library, we've got psram to spare right now
+            showdownJs = WebFiles.GetBytes(WebFiles.BinaryResources.showdown_min_js);
         }
 
         public void Route(HttpListenerContext context)
@@ -26,7 +32,18 @@ namespace rt4k_esp32
             {
                 case "/":
                 case "/index.htm":
-                    SendIndex(context);
+                    using (var sw = new StreamWriter(context.Response.OutputStream))
+                    {
+                        sw.Write(WebFiles.GetString(WebFiles.StringResources.index));
+                        sw.WriteLine("<pre>");
+
+                        foreach (string line in Program.webLog)
+                        {
+                            sw.WriteLine(line);
+                        }
+
+                        sw.WriteLine("</pre></body></html>");
+                    }
                     break;
                 case "/?disableWifi":
                     Log(" ***** Disabling wifi next boot, remove and re-insert SD card to reboot it");
@@ -39,20 +56,16 @@ namespace rt4k_esp32
                     context.Response.Headers.Add("Content-Encoding", "gzip");
                     context.Response.ContentType = "text/javascript";
 
-                    byte[] showdown = WebFiles.GetBytes(WebFiles.BinaryResources.showdown_min_js);
-                    context.Response.OutputStream.Write(showdown, 0, showdown.Length);
+                    context.Response.OutputStream.Write(showdownJs, 0, showdownJs.Length);
                     break;
                 case "/log":
+                    context.Response.ContentType = "text/plain";
                     using (var sw = new StreamWriter(context.Response.OutputStream))
                     {
-                        sw.WriteLine("<pre>");
-
                         foreach (string line in Program.webLog)
                         {
                             sw.WriteLine(line);
                         }
-
-                        sw.WriteLine("</pre>");
                     }
                     break;
                 default:

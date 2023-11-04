@@ -65,7 +65,18 @@ namespace rt4k_esp32
                 context.Response.Close();
                 context.Close();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Log("Exception closing HttpListenerContext");
+                Log(ex.Message);
+                Log(ex.StackTrace);
+                if (ex.InnerException != null)
+                {
+                    Log("Inner Exception:");
+                    Log(ex.InnerException.Message);
+                    Log(ex.InnerException.StackTrace);
+                }
+            }
         }
 
         private void Start()

@@ -45,9 +45,8 @@ namespace rt4k_esp32
             NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.SpiRam, out uint totalSpi, out _, out _);
 
             Log($"Total RAM: {totalInt / 1024} KiB internal, {totalSpi / 1024} KiB SPI PSRAM");
-            Log($"Platform: {SystemInfo.Platform}");
+            Log($"Target: {SystemInfo.Platform}: {SystemInfo.TargetName}");
             Log($"OEM: {SystemInfo.OEMString}");
-            Log($"Target: {SystemInfo.TargetName}");
             Log($"Version: {SystemInfo.Version}");
             Log($"FPU: {(int)SystemInfo.FloatingPointSupport switch { 0 => "None", 1 => "SinglePrecisionSoftware", 2 => "SinglePrecisionHardware", 3 => "DoublePrecisionSoftware", 4 => "DoublePrecisionHardware", _ => "Unknown" }}");
 
