@@ -66,7 +66,7 @@ namespace rt4k_esp32
 
         internal void UpdateCachedWifiCreds(object sender, EventArgs e)
         {
-            string fileContent = fileManager.GetFile("wifi.ini", true);
+            string fileContent = fileManager.ReadFile("wifi.ini", true);
 
             if (fileContent != cachedWifiCredsHash)
             {
@@ -131,6 +131,7 @@ namespace rt4k_esp32
                     if (WifiNetworkHelper.Status == NetworkHelperStatus.NetworkIsReady && IPGlobalProperties.GetIPAddress() != IPAddress.Any)
                     {
                         Log($"Wifi connected! IP address: {IPGlobalProperties.GetIPAddress()}");
+                        fileManager.QueueWrite("ipAddress.txt", IPGlobalProperties.GetIPAddress().ToString());
                     }
                     else
                     {

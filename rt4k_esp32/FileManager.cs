@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -14,6 +15,7 @@ namespace rt4k_esp32
 
         private readonly LogDelegate Log;
         private readonly SdManager sdManager;
+        private readonly Stack writeQueue = new();
 
         internal FileManager(LogDelegate logFunc, SdManager sdManager)
         {
@@ -24,19 +26,19 @@ namespace rt4k_esp32
             this.sdManager = sdManager;
         }
 
-        internal string GetFile(string path, bool instantRelease = false)
+        internal string ReadFile(string path, bool instantRelease = false)
         {
             try
             {
                 path = PathToSd(path);
                 GrabSD();
-                
+
                 using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
                 using (StreamReader sr = new(fs))
                 {
                     return sr.ReadToEnd();
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -47,6 +49,31 @@ namespace rt4k_esp32
             finally
             {
                 ReleaseSD(instantRelease);
+            }
+        }
+
+        internal void WriteFile(string path, string content)
+        {
+            try
+            {
+                path = PathToSd(path);
+                GrabSD();
+
+                using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+                using (StreamWriter sw = new(fs))
+                {
+                    sw.Write(content);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] GetFile(\"{path}\")");
+                LogException(ex);
+            }
+            finally
+            {
+                ReleaseSD();
             }
         }
 
@@ -156,7 +183,7 @@ namespace rt4k_esp32
                     long fileSize = request.ContentLength64;
                     int totalRead = 0;
 
-                    while (totalRead < fileSize && (read = request.InputStream.Read(buffer, 0, Math.Min(4096, (int)(fileSize-totalRead)))) != 0)
+                    while (totalRead < fileSize && (read = request.InputStream.Read(buffer, 0, Math.Min(4096, (int)(fileSize - totalRead)))) != 0)
                     {
                         file.Write(buffer, 0, read);
                         totalRead += read;
@@ -406,17 +433,25 @@ namespace rt4k_esp32
             }
         }
 
-        private void GrabSD() => sdManager.GrabSD();
+        private void GrabSD()
+        {
+            sdManager.GrabSD();
+
+            lock(this)
+            {
+                while (writeQueue.Count > 0)
+                {
+                    var queuedItem = (DictionaryEntry)writeQueue.Pop();
+                    WriteFile((string)queuedItem.Key, (string)queuedItem.Value);
+                }
+            }
+        }
         private void ReleaseSD(bool instantRelease = false) => sdManager.ReleaseSD(instantRelease);
 
-        private string PathToSd(string path)
-        {
-            return Path.Combine(ROOT_PATH + "\\", path.Trim('/').Replace('/', '\\'));
-        }
+        private string PathToSd(string path) => Path.Combine(ROOT_PATH + "\\", path.Trim('/').Replace('/', '\\'));
 
-        private string SdToPath(string path)
-        {
-            return path.Substring(ROOT_PATH.Length).Replace('\\', '/');
-        }
+        private string SdToPath(string path) => path.Substring(ROOT_PATH.Length).Replace('\\', '/');
+
+        internal void QueueWrite(string path, string content) => writeQueue.Push(new DictionaryEntry(path, content));
     }
 }

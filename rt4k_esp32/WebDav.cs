@@ -2,22 +2,23 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using nanoFramework.Networking;
-using Windows.Storage;
 
 namespace rt4k_esp32
 {
     internal class WebDav
     {
-        private readonly FileManager fm;
+        internal delegate void LogDelegate(string message);
 
-        public WebDav(FileManager fileManager)
+        private readonly FileManager fm;
+        private readonly LogDelegate Log;
+
+        public WebDav(FileManager fileManager, LogDelegate log)
         {
             fm = fileManager;
+            Log = log;
         }
 
         private void SendEmptyResponse(HttpListenerContext context, HttpStatusCode statusCode)
@@ -28,17 +29,17 @@ namespace rt4k_esp32
 
         public void Route(HttpListenerContext context)
         {
-            if (context.Request.Headers["Depth"] != null) { Program.Log($"Depth: {context.Request.Headers["Depth"]}"); }
-            if (context.Request.Headers["Range"] != null) { Program.Log($"Range: {context.Request.Headers["Range"]}"); }
-            if (context.Request.Headers["Destination"] != null) { Program.Log($"Destination: {context.Request.Headers["Destination"]}"); }
-            if (context.Request.ContentLength64 > 0) { Program.Log($"ContentLength: {context.Request.ContentLength64}"); }
+            if (context.Request.Headers["Depth"] != null) { Log($"Depth: {context.Request.Headers["Depth"]}"); }
+            if (context.Request.Headers["Range"] != null) { Log($"Range: {context.Request.Headers["Range"]}"); }
+            if (context.Request.Headers["Destination"] != null) { Log($"Destination: {context.Request.Headers["Destination"]}"); }
+            if (context.Request.ContentLength64 > 0) { Log($"ContentLength: {context.Request.ContentLength64}"); }
             context.Response.KeepAlive = false;
             context.Response.Headers.Add("DAV", "1");
             //context.Response.Headers.Add("Accept-Ranges", "bytes");
 
             //foreach (var headerName in e.Context.Request.Headers.AllKeys)
             //{
-            //    Program.Log($"{headerName}: {e.Context.Request.Headers[headerName]}");
+            //    Log($"{headerName}: {e.Context.Request.Headers[headerName]}");
             //}
 
             switch (context.Request.HttpMethod)
@@ -105,7 +106,7 @@ namespace rt4k_esp32
             foreach (Match prop in properties)
             {
                 sw.WriteLine($"        <Z:{prop.Groups[1].Value}/>");
-                Program.Log($"PROP: {prop.Groups[1].Value}");
+                Log($"PROP: {prop.Groups[1].Value}");
             }
             sw.WriteLine( "      </D:prop>");
             sw.WriteLine( "    </D:propstat>");

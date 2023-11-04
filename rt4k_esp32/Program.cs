@@ -61,7 +61,7 @@ namespace rt4k_esp32
             var webInterface = new WebInterface();
             StartServer(80, "WebUI", webInterface.Route);
 
-            var webDAV = new WebDav(fileManager);
+            var webDAV = new WebDav(fileManager, Log);
             StartServer(81, "WebDAV", webDAV.Route);
 
             // TODO: Do we need to keep this thread alive?

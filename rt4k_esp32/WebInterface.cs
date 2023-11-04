@@ -1,9 +1,5 @@
 ﻿using System.IO;
 using System.Net;
-using System.Reflection;
-using System.Resources;
-using System.Text;
-using nanoFramework.Runtime.Native;
 
 namespace rt4k_esp32
 {
