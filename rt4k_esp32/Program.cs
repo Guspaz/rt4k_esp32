@@ -1,10 +1,8 @@
-using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Collections;
 using nanoFramework.Hardware.Esp32;
 using nanoFramework.Runtime.Native;
-using System.Net;
 using System.IO;
 
 namespace rt4k_esp32
@@ -67,83 +65,13 @@ namespace rt4k_esp32
             wifiManager.WifiBoot();
 
             var webInterface = new WebInterface(fileManager, Log);
-            StartServer(80, "WebUI", webInterface.Route);
+            var webInterfaceServer = new WebServer(Log, 80, "WebUI", webInterface.Route);
 
             var webDAV = new WebDav(fileManager, Log);
-            StartServer(81, "WebDAV", webDAV.Route);
+            var webDAVServer = new WebServer(Log, 81, "WebDAV", webDAV.Route);
 
             // TODO: Do we need to keep this thread alive?
             Thread.Sleep(Timeout.Infinite);
-        }
-
-        public delegate void RouteDelegate(HttpListenerContext context);
-
-        public static void StartServer(int port, string name, RouteDelegate route)
-        {
-            new Thread(() =>
-            {
-                Log($"Starting {name} server on port {port}");
-                HttpListener httpServer = null;
-
-                while (true)
-                {
-                    try
-                    {
-                        httpServer = new HttpListener("http", port);
-                        httpServer.Start();
-
-                        Log($"{name} server started");
-
-                        while (httpServer.IsListening)
-                        {
-                            var context = httpServer.GetContext();
-                            try
-                            {
-                                Log($"{name}: {context.Request.HttpMethod} {context.Request.RawUrl}");
-                                route(context);
-
-                                if (context.Response.StatusCode != (int)HttpStatusCode.OK)
-                                {
-                                    Log($"Response: {context.Response.StatusCode}");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Log($"[{Thread.CurrentThread.ManagedThreadId}:{name}] Uncaught Exception in {name}.Route()");
-                                Log(ex.ToString());
-                                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                            }
-
-                            try
-                            {
-                                context.Response.Close();
-                                context.Close();
-                            }
-                            catch { }
-                            Thread.Sleep(0);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log($"[{Thread.CurrentThread.ManagedThreadId}:{name}] Uncaught Exception in HttpListener.GetContext()");
-                        Log(ex.ToString());
-                    }
-                    finally
-                    {
-                        // Try forcing a restart
-                        try
-                        {
-                            httpServer?.Stop();
-                            httpServer?.Abort();
-                        }
-                        catch { }
-                    }
-
-                    // If we ever fail, sleep a bit and restart
-                    Log($"{name} server failed, restarting");
-                    Thread.Sleep(1000);
-                }
-            }).Start();
         }
 
         public static void Log(string message)

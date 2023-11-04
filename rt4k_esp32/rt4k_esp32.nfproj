@@ -33,6 +33,7 @@
       <DependentUpon>WebFiles.resx</DependentUpon>
     </Compile>
     <Compile Include="WebInterface.cs" />
+    <Compile Include="WebServer.cs" />
     <Compile Include="WifiManager.cs" />
   </ItemGroup>
   <ItemGroup>
