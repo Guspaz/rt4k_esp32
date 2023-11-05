@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
-using nanoFramework.Hardware.Esp32;
 
 namespace rt4k_esp32
 {
@@ -14,6 +14,7 @@ namespace rt4k_esp32
 
         private readonly FileManager fm;
         private readonly LogDelegate Log;
+        private string ipCache = string.Empty;
 
         public WebDav(FileManager fileManager, LogDelegate log)
         {
@@ -100,7 +101,7 @@ namespace rt4k_esp32
             
             sw.WriteLine( "<D:multistatus xmlns:D=\"DAV:\" xmlns:Z=\"urn:schemas-microsoft-com:\">");
             sw.WriteLine( "  <D:response>");
-            sw.WriteLine($"    <D:href>http://192.168.1.34:81{EncodePath(path)}</D:href>");
+            sw.WriteLine($"    <D:href>{IPGlobalProperties.GetIPAddress()}{EncodePath(path)}</D:href>");
             sw.WriteLine( "    <D:propstat>");
             sw.WriteLine( "      <D:status>HTTP/1.1 200 OK</D:status>");
             sw.WriteLine( "      <D:prop>");
@@ -247,6 +248,7 @@ namespace rt4k_esp32
 
             var depthHeader = context.Request.Headers["Depth"];
             bool includeChildren = depthHeader == "1" || depthHeader == "infinity";
+            ipCache = IPGlobalProperties.GetIPAddress().ToString();
 
             var sw = new StreamWriter(context.Response.OutputStream);
 
@@ -287,7 +289,7 @@ namespace rt4k_esp32
             var fp = isDirectory ? fm.GetDirectoryProperties(path) : fm.GetFileProperties(path);
 
             sw.WriteLine($"  <D:response>");
-            sw.WriteLine($"    <D:href>http://192.168.1.34:81{EncodePath(path)}{(isDirectory ? "/" : "")}</D:href>");
+            sw.WriteLine($"    <D:href>{ipCache}{EncodePath(path)}{(isDirectory ? "/" : "")}</D:href>");
             sw.WriteLine($"    <D:propstat>");
             sw.WriteLine($"      <D:prop>");
             //sb.AppendLine($"        <D:creationdate>{fp.CreatedDate.ToString("o")}</D:creationdate>");
