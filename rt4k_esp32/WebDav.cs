@@ -228,8 +228,7 @@ namespace rt4k_esp32
 
             if (fm.FileExists(path))
             {
-                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                fm.WriteFileToHttpResponse(path, context.Response, !headMode);
+                fm.WriteFileToHttpResponse(path, context, !headMode);
                 context.Response.OutputStream.Flush();
             }
             else
@@ -317,6 +316,7 @@ namespace rt4k_esp32
         private void Options(HttpListenerContext context)
         {
             context.Response.Headers.Add("DAV", "1");
+            //context.Response.Headers.Add("X-MSDAVEXT", "1");
             context.Response.Headers.Add("Allow", "OPTIONS, GET, HEAD, PUT, LOCK, UNLOCK, PROPFIND, PROPPATCH, DELETE, MKCOL, MOVE");
         }
 

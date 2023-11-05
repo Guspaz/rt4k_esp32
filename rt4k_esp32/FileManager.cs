@@ -217,17 +217,32 @@ namespace rt4k_esp32
             }
         }
 
-        internal void WriteFileToHttpResponse(string path, HttpListenerResponse response, bool sendFile = true)
+        internal void WriteFileToHttpResponse(string path, HttpListenerContext context, bool sendFile = true)
         {
             // TODO: support if-modified-since
             try
             {
                 path = PathToSd(path);
-                response.ContentType = "application/octet-stream";
+                context.Response.ContentType = "application/octet-stream";
                 GrabSD();
 
-                response.ContentLength64 = GetLengthInternal(path);
-                response.Headers.Add("Last-Modified", File.GetLastWriteTime(path).ToString("R"));
+                context.Response.ContentLength64 = GetLengthInternal(path);
+                DateTime lastModified = File.GetLastWriteTime(path);
+                context.Response.Headers.Add("Last-Modified", lastModified.ToString("R"));
+
+                string ifModifiedHeader = context.Request.Headers["If-Modified-Since"];
+                DateTime ifModifiedDate = DateTime.MinValue;
+                bool hasIfModified = !string.IsNullOrEmpty(ifModifiedHeader) && DateTime.TryParse(ifModifiedHeader, out ifModifiedDate);
+
+                if (hasIfModified && lastModified <= ifModifiedDate)
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                    return;
+                }
+                else
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.OK;
+                }
 
                 if (!sendFile)
                 {
@@ -241,7 +256,7 @@ namespace rt4k_esp32
                 string nativeFilename = Path.GetFileName(path);
                 while ((read = (int)ReadInternal(nativePath, nativeFilename, buf, pos, buf.Length)) != 0)
                 {
-                    response.OutputStream.Write(buf, 0, read);
+                    context.Response.OutputStream.Write(buf, 0, read);
                     pos += read;
                 }
             }
