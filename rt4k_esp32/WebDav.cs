@@ -88,7 +88,13 @@ namespace rt4k_esp32
         private void PropPatch(HttpListenerContext context)
         {
             // We basically don't have any properties we can set, so just fake the response
-            // TODO: This is dangerous, reading a huge string buffer!
+            
+            if (context.Request.ContentLength64 > 65536)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.RequestEntityTooLarge;
+                return;
+            }
+
             byte[] buf = new byte[context.Request.ContentLength64];
             context.Request.InputStream.Read(buf, 0, buf.Length);
             string input = Encoding.UTF8.GetString(buf, 0, buf.Length);

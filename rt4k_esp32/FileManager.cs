@@ -207,7 +207,7 @@ namespace rt4k_esp32
             }
             catch (Exception ex)
             {
-                // TODO: Get it to return 500 or something
+                // TODO: LogException should in general send 500 or something
                 Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] WriteFileToSdCard(\"{path}\", request)");
                 LogException(ex);
             }
