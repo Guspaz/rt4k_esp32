@@ -124,7 +124,7 @@ namespace rt4k_esp32
                 }
                 catch (Exception ex)
                 {
-                    Log("Failed to mount MMC");
+                    Log("Failed to mount SD");
                     Log($"IsMounted: {SDCard.IsMounted}");
                     LogException(ex);
                 }

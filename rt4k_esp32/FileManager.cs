@@ -63,12 +63,11 @@ namespace rt4k_esp32
             }
         }
 
-        internal void WriteFile(string path, string content)
+        internal void WriteFileInternal(string path, string content)
         {
             try
             {
                 path = PathToSd(path);
-                GrabSD();
 
                 using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write))
                 using (StreamWriter sw = new(fs))
@@ -81,10 +80,6 @@ namespace rt4k_esp32
             {
                 Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] WriteFile(\"{path}\")");
                 LogException(ex);
-            }
-            finally
-            {
-                ReleaseSD();
             }
         }
 
@@ -189,50 +184,20 @@ namespace rt4k_esp32
                 path = PathToSd(path);
                 GrabSD();
 
-                //byte[] buf = new byte[65536];
-                //int read = -1;
-                //int pos = 0;
                 string nativePath = Path.GetDirectoryName(path);
                 string nativeFilename = Path.GetFileName(path);
-                //while ((read = (int)ReadInternal(nativePath, nativeFilename, buf, pos, buf.Length)) != 0)
-                //{
-                //    response.OutputStream.Write(buf, 0, read);
-                //    pos += read;
-                //}
-
-                //using (var file = new FileStream(path, FileMode.Create, FileAccess.Write))
-                //{
                 byte[] buf = new byte[65536];
                 int read;
                 int fileSize = (int)request.ContentLength64;
                 int position = 0;
 
-                // Ugly hack, but File.Create() isn't working
-                using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+                // We've bypassed the FileStream to avoid its write overhead, so we need to create the file ourselves
+                File.Create(path);
+                while (position < fileSize && (read = FillBuffer(buf, request.InputStream, MathMin(65536, fileSize - position))) != 0)
                 {
-                    // TODO: The input stream is only reading 4K chunks, accumulate before issuing the file write
-                    while (position < fileSize && (read = request.InputStream.Read(buf, 0, MathMin(65536, fileSize - position))) != 0)
-                    {
-                        //WriteInternal(nativePath, nativeFilename, buf, position, read);
-                        fs.Write(buf, 0, read);
-                        position += read;
-                    }
+                    WriteInternal(nativePath, nativeFilename, buf, position, read);
+                    position += read;
                 }
-                //}
-
-                //using (var file = new FileStream(path, FileMode.Create, FileAccess.Write))
-                //{
-                //    byte[] buffer = new byte[4096];
-                //    int read;
-                //    long fileSize = request.ContentLength64;
-                //    int totalRead = 0;
-
-                //    while (totalRead < fileSize && (read = request.InputStream.Read(buffer, 0, Math.Min(4096, (int)(fileSize - totalRead)))) != 0)
-                //    {
-                //        file.Write(buffer, 0, read);
-                //        totalRead += read;
-                //    }
-                //}
 
                 if (wifiUpdate)
                 {
@@ -242,6 +207,7 @@ namespace rt4k_esp32
             }
             catch (Exception ex)
             {
+                // TODO: Get it to return 500 or something
                 Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] WriteFileToSdCard(\"{path}\", request)");
                 LogException(ex);
             }
@@ -475,12 +441,12 @@ namespace rt4k_esp32
         {
             sdManager.GrabSD();
 
-            lock(this)
+            lock (this)
             {
                 while (writeQueue.Count > 0)
                 {
                     var queuedItem = (DictionaryEntry)writeQueue.Pop();
-                    WriteFile((string)queuedItem.Key, (string)queuedItem.Value);
+                    WriteFileInternal((string)queuedItem.Key, (string)queuedItem.Value);
                 }
             }
         }
@@ -503,9 +469,24 @@ namespace rt4k_esp32
             return (int)readNative.Invoke(dummyFileStream, new object[] { nativePath, nativeFilename, position, buffer, count });
         }
 
-        internal long WriteInternal(string nativePath, string nativeFilename, byte[] buffer, long position, int count)
+        internal void WriteInternal(string nativePath, string nativeFilename, byte[] buffer, long position, int count)
         {
-            return (int)writeNative.Invoke(dummyFileStream, new object[] { nativePath, nativeFilename, position, buffer, count });
+            writeNative.Invoke(dummyFileStream, new object[] { nativePath, nativeFilename, position, buffer, count });
+        }
+
+        internal int FillBuffer(byte[] buffer, Stream stream, int maxRead)
+        {
+            int bufLen = MathMin(buffer.Length, maxRead);
+            int read = -1;
+            int pos = 0;
+
+            while (pos < bufLen && read != 0)
+            {
+                read = stream.Read(buffer, pos, MathMin(bufLen, bufLen - pos));
+                pos += read;
+            }
+
+            return pos;
         }
     }
 }
