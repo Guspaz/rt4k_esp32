@@ -4,7 +4,6 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
-using nanoFramework.Hardware.Esp32;
 
 namespace rt4k_esp32
 {
@@ -20,6 +19,8 @@ namespace rt4k_esp32
         private readonly Stack writeQueue = new();
         private readonly FileStream dummyFileStream;
         private readonly MethodInfo getLengthNative;
+        private readonly MethodInfo readNative;
+        private readonly MethodInfo writeNative;
 
         internal FileManager(LogDelegate logFunc, SdManager sdManager)
         {
@@ -32,6 +33,8 @@ namespace rt4k_esp32
             // We just need a FileStream to reflect into
             dummyFileStream = new("I:\\dummyFile", FileMode.OpenOrCreate);
             getLengthNative = dummyFileStream.GetType().GetMethod("GetLengthNative", BindingFlags.NonPublic | BindingFlags.Instance);
+            readNative = dummyFileStream.GetType().GetMethod("ReadNative", BindingFlags.NonPublic | BindingFlags.Instance);
+            writeNative = dummyFileStream.GetType().GetMethod("WriteNative", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         internal string ReadFile(string path, bool instantRelease = false)
@@ -76,7 +79,7 @@ namespace rt4k_esp32
             }
             catch (Exception ex)
             {
-                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] GetFile(\"{path}\")");
+                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] WriteFile(\"{path}\")");
                 LogException(ex);
             }
             finally
@@ -175,6 +178,8 @@ namespace rt4k_esp32
             }
         }
 
+        internal int MathMin(int left, int right) => left < right ? left : right;
+
         internal void WriteFileToSdCard(string path, HttpListenerRequest request)
         {
             try
@@ -184,19 +189,50 @@ namespace rt4k_esp32
                 path = PathToSd(path);
                 GrabSD();
 
-                using (var file = new FileStream(path, FileMode.Create, FileAccess.Write))
-                {
-                    byte[] buffer = new byte[4096];
-                    int read;
-                    long fileSize = request.ContentLength64;
-                    int totalRead = 0;
+                //byte[] buf = new byte[65536];
+                //int read = -1;
+                //int pos = 0;
+                string nativePath = Path.GetDirectoryName(path);
+                string nativeFilename = Path.GetFileName(path);
+                //while ((read = (int)ReadInternal(nativePath, nativeFilename, buf, pos, buf.Length)) != 0)
+                //{
+                //    response.OutputStream.Write(buf, 0, read);
+                //    pos += read;
+                //}
 
-                    while (totalRead < fileSize && (read = request.InputStream.Read(buffer, 0, Math.Min(4096, (int)(fileSize - totalRead)))) != 0)
+                //using (var file = new FileStream(path, FileMode.Create, FileAccess.Write))
+                //{
+                byte[] buf = new byte[65536];
+                int read;
+                int fileSize = (int)request.ContentLength64;
+                int position = 0;
+
+                // Ugly hack, but File.Create() isn't working
+                using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+                {
+                    // TODO: The input stream is only reading 4K chunks, accumulate before issuing the file write
+                    while (position < fileSize && (read = request.InputStream.Read(buf, 0, MathMin(65536, fileSize - position))) != 0)
                     {
-                        file.Write(buffer, 0, read);
-                        totalRead += read;
+                        //WriteInternal(nativePath, nativeFilename, buf, position, read);
+                        fs.Write(buf, 0, read);
+                        position += read;
                     }
                 }
+                //}
+
+                //using (var file = new FileStream(path, FileMode.Create, FileAccess.Write))
+                //{
+                //    byte[] buffer = new byte[4096];
+                //    int read;
+                //    long fileSize = request.ContentLength64;
+                //    int totalRead = 0;
+
+                //    while (totalRead < fileSize && (read = request.InputStream.Read(buffer, 0, Math.Min(4096, (int)(fileSize - totalRead)))) != 0)
+                //    {
+                //        file.Write(buffer, 0, read);
+                //        totalRead += read;
+                //    }
+                //}
 
                 if (wifiUpdate)
                 {
@@ -223,20 +259,15 @@ namespace rt4k_esp32
                 response.ContentType = "application/octet-stream";
                 GrabSD();
 
-                using (var file = new FileStream(path, FileMode.Open, FileAccess.Read))
+                byte[] buf = new byte[65536];
+                int read = -1;
+                int pos = 0;
+                string nativePath = Path.GetDirectoryName(path);
+                string nativeFilename = Path.GetFileName(path);
+                while ((read = (int)ReadInternal(nativePath, nativeFilename, buf, pos, buf.Length)) != 0)
                 {
-                    response.ContentLength64 = file.Length;
-
-                    if (sendFile)
-                    {
-                        byte[] buffer = new byte[4 * 1024];
-                        int read;
-
-                        while ((read = file.Read(buffer, 0, 4 * 1024)) != 0)
-                        {
-                            response.OutputStream.Write(buffer, 0, read);
-                        }
-                    }
+                    response.OutputStream.Write(buf, 0, read);
+                    pos += read;
                 }
             }
             catch (Exception ex)
@@ -368,17 +399,17 @@ namespace rt4k_esp32
                 path = PathToSd(path);
                 GrabSD();
 
-                var fileProperties = new FileProperties();
+                var fileProperties = new FileProperties
+                {
+                    FileSize = GetLengthInternal(path),
 
-                
-                fileProperties.FileSize = GetLengthInternal(path);
+                    //var storageFile = StorageFile.GetFileFromPath(path);
 
-                //var storageFile = StorageFile.GetFileFromPath(path);
-
-                // TODO: Figure out how to get created dates, this doesn't work.
-                //fileProperties.CreatedDate = storageFile.DateCreated;
-                //fileProperties.ContentType = storageFile.ContentType;
-                fileProperties.LastModifiedDate = File.GetLastWriteTime(path);
+                    // TODO: Figure out how to get created dates, this doesn't work.
+                    //fileProperties.CreatedDate = storageFile.DateCreated;
+                    //fileProperties.ContentType = storageFile.ContentType;
+                    LastModifiedDate = File.GetLastWriteTime(path)
+                };
 
                 return fileProperties;
             }
@@ -465,6 +496,16 @@ namespace rt4k_esp32
         internal long GetLengthInternal(string path)
         {
             return (long)getLengthNative.Invoke(dummyFileStream, new string[] { Path.GetDirectoryName(path), Path.GetFileName(path) });
+        }
+
+        internal long ReadInternal(string nativePath, string nativeFilename, byte[] buffer, long position, int count)
+        {
+            return (int)readNative.Invoke(dummyFileStream, new object[] { nativePath, nativeFilename, position, buffer, count });
+        }
+
+        internal long WriteInternal(string nativePath, string nativeFilename, byte[] buffer, long position, int count)
+        {
+            return (int)writeNative.Invoke(dummyFileStream, new object[] { nativePath, nativeFilename, position, buffer, count });
         }
     }
 }

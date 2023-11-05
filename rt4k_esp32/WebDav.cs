@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -34,7 +33,6 @@ namespace rt4k_esp32
             if (context.Request.Headers["Destination"] != null) { Log($"Destination: {context.Request.Headers["Destination"]}"); }
             if (context.Request.ContentLength64 > 0) { Log($"ContentLength: {context.Request.ContentLength64}"); }
             context.Response.KeepAlive = false;
-            context.Response.Headers.Add("DAV", "1");
             //context.Response.Headers.Add("Accept-Ranges", "bytes");
 
             //foreach (var headerName in context.Request.Headers.AllKeys)
@@ -307,6 +305,7 @@ namespace rt4k_esp32
 
         private void Options(HttpListenerContext context)
         {
+            context.Response.Headers.Add("DAV", "1");
             context.Response.Headers.Add("Allow", "OPTIONS, GET, HEAD, PUT, LOCK, UNLOCK, PROPFIND, PROPPATCH, DELETE, MKCOL, MOVE");
         }
 

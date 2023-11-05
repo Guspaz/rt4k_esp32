@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
-using nanoFramework.Hardware.Esp32;
 
 namespace rt4k_esp32
 {
@@ -11,15 +9,17 @@ namespace rt4k_esp32
 
         private readonly FileManager fm;
         private readonly LogDelegate Log;
-        byte[] showdownJs;
+        private readonly byte[] showdownJs;
+        private readonly string indexHtml;
 
         public WebInterface(FileManager fileManager, LogDelegate log)
         {
             fm = fileManager;
             Log = log;
 
-            // Pre-cache the showdown library, we've got psram to spare right now
+            // Pre-cache web assets, we've got psram to spare right now
             showdownJs = WebFiles.GetBytes(WebFiles.BinaryResources.showdown_min_js);
+            indexHtml = WebFiles.GetString(WebFiles.StringResources.index);
         }
 
         public void Route(HttpListenerContext context)
@@ -34,7 +34,7 @@ namespace rt4k_esp32
                 case "/index.htm":
                     using (var sw = new StreamWriter(context.Response.OutputStream))
                     {
-                        sw.Write(WebFiles.GetString(WebFiles.StringResources.index));
+                        sw.Write(indexHtml);
                         sw.WriteLine("<pre>");
 
                         foreach (string line in Program.webLog)
@@ -84,14 +84,6 @@ namespace rt4k_esp32
         {
             context.Response.StatusCode = (int)statusCode;
             context.Response.ContentLength64 = 0;
-        }
-
-        private void SendIndex(HttpListenerContext context)
-        {
-            using (var sw = new StreamWriter(context.Response.OutputStream))
-            {
-                sw.Write(WebFiles.GetString(WebFiles.StringResources.index));
-            }
         }
     }
 }
