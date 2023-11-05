@@ -219,11 +219,20 @@ namespace rt4k_esp32
 
         internal void WriteFileToHttpResponse(string path, HttpListenerResponse response, bool sendFile = true)
         {
+            // TODO: support if-modified-since
             try
             {
                 path = PathToSd(path);
                 response.ContentType = "application/octet-stream";
                 GrabSD();
+
+                response.ContentLength64 = GetLengthInternal(path);
+                response.Headers.Add("Last-Modified", File.GetLastWriteTime(path).ToString("R"));
+
+                if (!sendFile)
+                {
+                    return;
+                }
 
                 byte[] buf = new byte[65536];
                 int read = -1;

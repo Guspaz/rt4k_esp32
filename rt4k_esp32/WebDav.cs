@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using nanoFramework.Hardware.Esp32;
 
 namespace rt4k_esp32
 {
@@ -35,10 +36,12 @@ namespace rt4k_esp32
             context.Response.KeepAlive = false;
             //context.Response.Headers.Add("Accept-Ranges", "bytes");
 
+            //Log("==========");
             //foreach (var headerName in context.Request.Headers.AllKeys)
             //{
             //    Log($"{headerName}: {context.Request.Headers[headerName]}");
             //}
+            //Log("==========");
 
             switch (context.Request.HttpMethod)
             {
@@ -294,7 +297,7 @@ namespace rt4k_esp32
             {
                 sw.WriteLine($"        <D:getcontentlength b:dt=\"int\">{fp.FileSize}</D:getcontentlength>");
                 // TODO: Do MIME types matter?
-                sw.WriteLine($"        <D:getcontenttype>application/octet-stream</D:getcontenttype>");
+                //sw.WriteLine($"        <D:getcontenttype>application/octet-stream</D:getcontenttype>");
             }
             sw.WriteLine($"        <D:resourcetype>{(isDirectory ? "<D:collection/>" : "")}</D:resourcetype>");
             sw.WriteLine($"      </D:prop>");
