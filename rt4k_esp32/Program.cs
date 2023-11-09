@@ -63,11 +63,8 @@ namespace rt4k_esp32
 
             wifiManager.WifiBoot();
 
-            var webInterface = new WebInterface(fileManager, Log);
-            var webInterfaceServer = new WebServer(Log, 80, "WebUI", webInterface.Route);
-
-            var webDAV = new WebDav(fileManager, Log);
-            var webDAVServer = new WebServer(Log, 81, "WebDAV", webDAV.Route);
+            var webInterface = new WebInterface(fileManager, Log, 80);
+            var webDAV = new WebDav(fileManager, Log, 81);
 
             // TODO: Do we need to keep this thread alive?
             Thread.Sleep(Timeout.Infinite);

@@ -53,13 +53,68 @@ namespace rt4k_esp32
             }
             catch (Exception ex)
             {
-                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] GetFile(\"{path}\")");
+                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] ReadFile(\"{path}\")");
                 LogException(ex);
                 return null;
             }
             finally
             {
                 ReleaseSD(instantRelease);
+            }
+        }
+
+        internal byte[] ReadFileRaw(string path)
+        {
+            {
+                try
+                {
+                    path = PathToSd(path);
+                    GrabSD();
+
+                    using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                    {
+                        var buf = new byte[fs.Length];
+                        fs.Read(buf, 0, buf.Length);
+                        return buf;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] ReadFileRaw(\"{path}\")");
+                    LogException(ex);
+                    return null;
+                }
+                finally
+                {
+                    ReleaseSD();
+                }
+            }
+        }
+
+        internal void WriteFileRaw(string path, byte[] data)
+        {
+            {
+                try
+                {
+                    path = PathToSd(path);
+                    GrabSD();
+
+                    using (FileStream fs = new FileStream(path, FileMode.Create, FileAccess.Write))
+                    {
+                        fs.Write(data, 0, data.Length);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] WriteFileRaw(\"{path}\")");
+                    LogException(ex);
+                }
+                finally
+                {
+                    ReleaseSD();
+                }
             }
         }
 

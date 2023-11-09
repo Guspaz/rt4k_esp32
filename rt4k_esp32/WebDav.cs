@@ -8,18 +8,14 @@ using System.Web;
 
 namespace rt4k_esp32
 {
-    internal class WebDav
+    internal class WebDav : WebServer
     {
-        internal delegate void LogDelegate(string message);
-
         private readonly FileManager fm;
-        private readonly LogDelegate Log;
         private string ipCache = string.Empty;
 
-        public WebDav(FileManager fileManager, LogDelegate log)
+        public WebDav(FileManager fileManager, LogDelegate log, int port) : base(log, port, "WebDAV")
         {
             fm = fileManager;
-            Log = log;
         }
 
         private void SendEmptyResponse(HttpListenerContext context, HttpStatusCode statusCode)
@@ -28,7 +24,7 @@ namespace rt4k_esp32
             context.Response.ContentLength64 = 0;
         }
 
-        public void Route(HttpListenerContext context)
+        protected override void Route(HttpListenerContext context)
         {
             if (context.Request.Headers["Depth"] != null) { Log($"Depth: {context.Request.Headers["Depth"]}"); }
             if (context.Request.Headers["Range"] != null) { Log($"Range: {context.Request.Headers["Range"]}"); }
@@ -291,6 +287,8 @@ namespace rt4k_esp32
 
         private void AppendResponseForItem(StreamWriter sw, string path, bool isDirectory)
         {
+            // TODO: Add eTag support
+
             var fp = isDirectory ? fm.GetDirectoryProperties(path) : fm.GetFileProperties(path);
 
             sw.WriteLine($"  <D:response>");

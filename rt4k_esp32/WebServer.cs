@@ -1,34 +1,35 @@
 ﻿using System;
+using System.Collections;
 using System.Net;
+using System.Text;
 using System.Threading;
+using System.Web;
 
 namespace rt4k_esp32
 {
-    internal class WebServer
+    internal abstract class WebServer
     {
-        public delegate void RouteDelegate(HttpListenerContext context);
         internal delegate void LogDelegate(string message);
 
-        private readonly LogDelegate Log;
+        protected readonly LogDelegate Log;
         private readonly int Port;
         private readonly string Name;
-        private readonly RouteDelegate Route;
         private HttpListener httpListener;
+        private HttpListenerContext context;
 
-        public WebServer(LogDelegate log, int port, string name, RouteDelegate route)
+        public WebServer(LogDelegate log, int port, string name)
         {
             this.Log = log;
             this.Port = port;
             this.Name = name;
-            this.Route = route;
 
             this.Start();
         }
 
+        protected abstract void Route(HttpListenerContext context);
+
         private void HandleContext()
         {
-            HttpListenerContext context;
-
             // First, wait for a request
             try
             {
@@ -62,8 +63,8 @@ namespace rt4k_esp32
             // Third, clean up after the request
             try
             {
-                context.Response.Close();
-                context.Close();
+                context?.Response?.Close();
+                context?.Close();
             }
             catch (Exception ex)
             {
@@ -115,6 +116,29 @@ namespace rt4k_esp32
                     catch { }
                 }
             }).Start();
+        }
+
+        protected string ReadRequest()
+        {
+            byte[] buf = new byte[context.Request.ContentLength64];
+            context.Request.InputStream.Read(buf, 0, buf.Length);
+            return Encoding.UTF8.GetString(buf, 0, buf.Length);
+        }
+
+        protected static Hashtable ParseFormData(string postData)
+        {
+            var formData = new Hashtable();
+
+            foreach (var pair in postData.Split('&'))
+            {
+                var keyValue = pair.Split('=');
+                if (keyValue.Length == 2)
+                {
+                    formData.Add(keyValue[0], HttpUtility.UrlDecode(keyValue[1], Encoding.UTF8));
+                }
+            }
+
+            return formData;
         }
     }
 }

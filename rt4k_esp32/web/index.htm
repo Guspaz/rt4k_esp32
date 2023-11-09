@@ -1,42 +1,63 @@
-<html><head>
-<script type="text/javascript" src='showdown.min.js'></script>
-<script>
-var converter = new showdown.Converter({
-noHeaderId: true,
-disableForced4SpacesIndentedSublists: true
-});
-</script>
-</head>
-<body>
-<script>
-var text = `
+<html>
+    <head>
+        <script type="text/javascript" src='showdown.min.js'></script>
+        <script>var converter = new showdown.Converter({ noHeaderId: true, disableForced4SpacesIndentedSublists: true, simplifiedAutoLink: true });</script>
+    </head>
+    <body>
+        <h1>RT4K SD Wifi</h1>
 
-# RT4K SD Wifi
+        <br />
+        <h2>Commands</h2>
+        <input type="button" onclick="location.href='disableWifi';" value="Disable wifi next boot" />
 
-## Commands
+        <br /><br />
+        <details>
+            <summary><h4 style='display: inline;'>Bulk profile editor</h4></summary>
+            This will write a certain pattern of bytes to a certain address in all profiles on the SD card.
+            <br /><br />
+            <form action="/bulkEdit" method="post">
+                <label for="address">Address:</label><input type="text" id="address" name="address" />&nbsp;&nbsp;<label for="value">Value:</label><input type="text" id="value" name="value" />&nbsp;&nbsp;<input type="submit" />
+            </form>
+        </details>
 
-<input type="button" onclick="location.href='?disableWifi';" value="Disable wifi next boot" />
-
-<details>
-<summary><h2 style='display: inline;'>Readme</h2></summary>
-- The ESP32 will boot the moment the SD card gets power
-  - The RT4K supplies power to the SD slot even when the RT4K is off, as long as the RT4K power cable has power
-- This is going to be SLOW. Expect 120 KB/s transfer speeds over WebDAV
-- If you right-click on a file and select "Properties" in Windows, it will download the entire file (at the aformentioned 120 KB/s)
-- This thing works like the SD card is plugged into two devices at the same time, whatever you physically plugged it into, and this here ESP32
-  - Any time the ESP32 reads or writes to the SD card, it completely disconnects it from the physical host device (the RT4K, Windows PC, etc.)
-  - Windows hates that, it will unmount the SD card drive and not remount it again until you unplug and replug it
-  - The RT4K can handle it, but not during boot or firmware updates
+        <br />
+        <details>
+            <summary><h2 style='display: inline;'>Readme</h2></summary>
+            <script>
+                var text = `
+- The ESP32 will boot the moment the SD card gets power.
+    - The RT4K always powers the SD slot even when the RT4K is off, as long as the RT4K power cable is plugged in.
+- Any time the ESP32 accesses the SD card (read or write), it will temporarily disconnect the SD card from the host device (such as the RT4K or Windows)
+    - Windows hates this and will unmount the SD card until you physically unplug/replug it
+    - The RT4K is fine with it, as long as it's not booting or updating the firmware
 - In order to avoid killing the RT4K boot, the ESP32 will try to load the wifi credentials from its internal cache when it boots, NOT the SD card.
-  - It will wait 30 seconds after boot to check the wifi.ini file on the SD card to see if there are updated credentials to use
-  - If the wifi.ini file is different from the cached credentials, it will update the cache and reboot the ESP32
-  - You have 30 seconds after connecting the SD card to a Windows PC to copy in a wifi.ini file on the first boot before Windows loses the connection
-- If you want Windows to stay connected for a longer time, click the "Disable wifi until next boot" button above and unplug and replug the SD card
-  - This button will disable wifi for the next boot only, ensuring that Windows is not interrupted. When you're done, safely remove the SD card and unplug and replug it again to reconnect to wifi.
-</details>
-
-## Debug Log
-
+    - It will wait 30 seconds after boot to check the wifi.ini file on the SD card to see if there are updated credentials to use
+    - If the wifi.ini file is different from the cached credentials, it will update the cache and reboot the ESP32
+    - You have 30 seconds after connecting the SD card to a Windows PC to copy in a wifi.ini file on the first boot before Windows loses the connection
+- WebDAV is slow. If you need high-speed transfer, use the "Disable wifi next boot" button
+    - Click the button
+    - Wait a few seconds
+    - Unplug the SD card (from the RT4K or wherever it's currently connected)
+    - Plug the SD card into its reader connected to your PC
+        - If using the SD-WIFI-PRO dev board as your reader, make sure the "SD ESP" dipswitch is set to "SD" and the "RD UPLD" dipswitch is set to "RD"
+    - The SD card will now be mounted to your Windows machine and you can move stuff around with high performance
+    - Unplug the SD card and plug it back into the RT4K. It should now boot back up again with wifi enabled.
+- To update the ESP32 firmware
+    - These instructions are for Windows, MacOS and Linux are supported, check here for instructions: https://github.com/nanoframework/nanoFirmwareFlasher
+    - Using the SD-WIFI-PRO dev board, set the "RD UPLD" dip switch to the "RD UPLD" setting
+    - Plug the SD-WIFI-PRO into the dev board and connect the dev board to your PC
+    - Open a command prompt
+    - Install the "nanoff" tool by typing: <pre>dotnet tool install -g nanoff</pre>
+        - You can update the "nanoff" tool later by typing: <pre>dotnet tool update -g nanoff</pre>
+    - Figure out which COM port it connected to by running: <pre>nanoff --listports</pre>
+        - If you see multiple COM ports listed, follow these instructions on Windows: https://github.com/nanoframework/nanoFirmwareFlasher#finding-the-device-com-port-on-windows
+    - Update the firmware with the following command: <pre>nanoff --target ESP32_PSRAM_REV0 --serialport COM12 --deploy --image "C:\\example\\path\\rt4k_esp32.bin"</pre>
+    - Unplug the SD card and plug it in again, either with the dev board in SD reader mode, or into your RT4K.
 `; document.write(converter.makeHtml(text));
-</script>
-<!-- Closing body/html tag will be sent from C# -->
+            </script>
+        </details>
+
+        <br />
+        <details>
+            <summary><h2 style='display: inline;'>Debug Log</h2></summary>
+            <!-- Closing body/html tag will be sent from C# -->
