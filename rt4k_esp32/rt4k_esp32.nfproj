@@ -98,10 +98,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Resource Include="web\base_template_footer.htm" />
+    <Resource Include="web\readme.htm" />
     <Resource Include="web\showdown.min.js.gz" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="web\index.htm" />
+    <Resource Include="web\base_template_header.htm" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="WebFiles.resx">

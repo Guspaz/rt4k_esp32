@@ -36,7 +36,9 @@ namespace rt4k_esp32
         [System.SerializableAttribute()]
         internal enum StringResources : short
         {
-            index = -2501,
+            readme = -23641,
+            base_template_header = -5716,
+            base_template_footer = 24240,
         }
         [System.SerializableAttribute()]
         internal enum BinaryResources : short
