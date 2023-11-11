@@ -13,9 +13,12 @@ namespace rt4k_esp32
         private readonly FileManager fm;
         private string ipCache = string.Empty;
 
+        public static int Port;
+
         public WebDav(FileManager fileManager, LogDelegate log, int port) : base(log, port, "WebDAV")
         {
             fm = fileManager;
+            Port = port;
         }
 
         private void SendEmptyResponse(HttpListenerContext context, HttpStatusCode statusCode)

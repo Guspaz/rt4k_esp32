@@ -125,7 +125,7 @@ namespace rt4k_esp32
             return Encoding.UTF8.GetString(buf, 0, buf.Length);
         }
 
-        protected static Hashtable ParseFormData(string postData)
+        protected static Hashtable ParseUrlParams(string postData)
         {
             var formData = new Hashtable();
 

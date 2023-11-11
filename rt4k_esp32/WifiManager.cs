@@ -17,6 +17,8 @@ namespace rt4k_esp32
         private readonly FileManager fileManager;
         private string cachedWifiCredsHash;
 
+        public static string SSID = string.Empty;
+
         internal WifiManager(LogDelegate logFunc, FileManager fileManager)
         {
             Log = logFunc;
@@ -146,6 +148,7 @@ namespace rt4k_esp32
                     {
                         Log($"Wifi connected! IP address: {IPGlobalProperties.GetIPAddress()}");
                         fileManager.QueueWrite("ipAddress.txt", IPGlobalProperties.GetIPAddress().ToString());
+                        SSID = (string)wifiConfig["ssid"];
                     }
                     else
                     {

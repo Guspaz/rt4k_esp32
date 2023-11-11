@@ -1,0 +1,27 @@
+﻿<h1>Actions</h1>
+
+<div class='w3-panel'>
+    <table class='w3-table-all w3-card' style='max-width: 900px;'>
+        <tr><th width="250px">Disable wifi next boot</th><td><input type="button" onclick="location.href='/disableWifi';" value="Disable wifi next boot" /></td></tr>
+        <tr>
+            <th>Bulk profile editor</th>
+            <td>
+                This will write a certain pattern of bytes to a certain address in all profiles on the SD card.
+                <form action="/bulkEdit" method="post">
+                    <div class="w3-panel">
+                        <div class="w3-cell" style="width: 100px;"><label for="address"><b>Address</b></label></div>
+                        <div class="w3-cell"><input type="text" id="address" name="address"></div>
+                    </div>
+                    <div class="w3-panel">
+                        <div class="w3-cell" style="width: 100px;"><label for="value"><b>Value</b></label></div>
+                        <div class="w3-cell"><input type="text" id="value" name="value"></div>
+                    </div>
+                    <div class="w3-panel">
+                        <input type="submit">
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr><th>Order pizza</th><td><input type="button" onclick="location.href='/orderPizza';" value="Order" /></td></tr>
+    </table>
+</div>

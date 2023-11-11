@@ -38,6 +38,7 @@ namespace rt4k_esp32
         {
             readme = -23641,
             base_template_header = -5716,
+            actions = 10353,
             base_template_footer = 24240,
         }
         [System.SerializableAttribute()]
