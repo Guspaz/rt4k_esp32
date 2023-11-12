@@ -68,6 +68,14 @@ namespace rt4k_esp32
                         var formData = ParseUrlParams(ReadRequest());
                         Log($"Writing value {formData["value"]} to address {formData["address"]}");
 
+                        foreach (var file in fm.ListFilesRecursive("/", ".rt4"))
+                        {
+                            Log($"File found: {file}");
+                        }
+
+                        // TODO: Implement actual bulk edit
+                        // TODO: Checksum calculation is slow, so do it in a thread, report progress back, and skip files that don't need to be updated.
+
                         //byte[] profileData = fm.ReadFileRaw("/profile/test_blankcrc.rt4");
                         //Profile profile = new Profile(profileData);
                         //fm.WriteFileRaw("/profile/test_result.rt4", profile.Save());

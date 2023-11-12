@@ -388,7 +388,7 @@ namespace rt4k_esp32
             }
         }
 
-        internal string[] GetDirectories(string path)
+        internal string[] ListDirectories(string path)
         {
             try
             {
@@ -402,7 +402,7 @@ namespace rt4k_esp32
             }
             catch (Exception ex)
             {
-                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] GetDirectories(\"{path}\")");
+                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] ListDirectories(\"{path}\")");
                 LogException(ex);
                 return null;
             }
@@ -412,7 +412,7 @@ namespace rt4k_esp32
             }
         }
 
-        internal string[] GetFiles(string path)
+        internal string[] ListFiles(string path)
         {
             try
             {
@@ -427,7 +427,7 @@ namespace rt4k_esp32
             }
             catch (Exception ex)
             {
-                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] GetFiles(\"{path}\")");
+                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] ListFiles(\"{path}\")");
                 LogException(ex);
                 return null;
             }
@@ -435,6 +435,58 @@ namespace rt4k_esp32
             {
                 ReleaseSD();
             }
+        }
+
+        internal string[] ListFilesRecursive(string path, string extension)
+        {
+            try
+            {
+                path = PathToSd(path);
+                GrabSD();
+                string[] results = ListFilesRecursiveInternal(path, extension);
+                for (int i = 0; i < results.Length; i++)
+                {
+                    results[i] = SdToPath(results[i]);
+                }
+                return results;
+            }
+            catch (Exception ex)
+            {
+                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] ListFilesRecursive(\"{path}\", \"{extension}\")");
+                LogException(ex);
+                return null;
+            }
+            finally
+            {
+                ReleaseSD();
+            }
+        }
+
+        static string[] ListFilesRecursiveInternal(string rootPath, string extension)
+        {
+            ArrayList results = new ArrayList();
+            Stack directories = new Stack();
+            directories.Push(rootPath);
+
+            while (directories.Count > 0)
+            {
+                string currentDir = (string)directories.Pop();
+
+                foreach (string file in Directory.GetFiles(currentDir))
+                {
+                    if (file.EndsWith(extension))
+                    {
+                        results.Add(file);
+                    }
+                }
+
+                foreach (string str in Directory.GetDirectories(currentDir))
+                {
+                    directories.Push(str);
+                }
+            }
+
+            return (string[])results.ToArray(typeof(string));
         }
 
         internal FileProperties GetFileProperties(string path)

@@ -264,11 +264,11 @@ namespace rt4k_esp32
 
                 if (includeChildren)
                 {
-                    foreach (var dir in fm.GetDirectories(path))
+                    foreach (var dir in fm.ListDirectories(path))
                     {
                         AppendResponseForItem(sw, dir, true);
                     }
-                    foreach (var file in fm.GetFiles(path))
+                    foreach (var file in fm.ListFiles(path))
                     {
                         AppendResponseForItem(sw, file, false);
                     }
