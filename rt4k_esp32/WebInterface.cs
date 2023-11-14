@@ -11,7 +11,6 @@ namespace rt4k_esp32
     internal class WebInterface : WebServer
     {
         private readonly FileManager fm;
-        private readonly byte[] showdownJs;
         private readonly string base_template_header;
         private readonly string base_template_footer;
 
@@ -20,9 +19,8 @@ namespace rt4k_esp32
             fm = fileManager;
 
             // Pre-cache web assets, we've got psram to spare right now
-            showdownJs = WebFiles.GetBytes(WebFiles.BinaryResources.showdown_min_js);
             base_template_header = WebFiles.GetString(WebFiles.StringResources.base_template_header).TrimStart('\u0001');
-            base_template_footer = WebFiles.GetString(WebFiles.StringResources.base_template_footer);
+            base_template_footer = WebFiles.GetString(WebFiles.StringResources.base_template_footer).TrimStart('\u0001');
         }
 
         protected override void Route(HttpListenerContext context)
@@ -31,12 +29,21 @@ namespace rt4k_esp32
             //context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.KeepAlive = false;
 
-            // Special case for binary file
+            // Special case for binary files
             if (context.Request.RawUrl == "/showdown.min.js")
             {
                 context.Response.Headers.Add("Content-Encoding", "gzip");
                 context.Response.ContentType = "text/javascript";
+                var showdownJs = WebFiles.GetBytes(WebFiles.BinaryResources.showdown_min_js);
                 context.Response.OutputStream.Write(showdownJs, 0, showdownJs.Length);
+                return;
+            }
+            else if(context.Request.RawUrl == "/calc.js")
+            {
+                context.Response.Headers.Add("Content-Encoding", "gzip");
+                context.Response.ContentType = "text/javascript";
+                var calcJs = WebFiles.GetBytes(WebFiles.BinaryResources.calc_js);
+                context.Response.OutputStream.Write(calcJs, 0, calcJs.Length);
                 return;
             }
 
@@ -68,10 +75,22 @@ namespace rt4k_esp32
                         var formData = ParseUrlParams(ReadRequest());
                         Log($"Writing value {formData["value"]} to address {formData["address"]}");
 
-                        foreach (var file in fm.ListFilesRecursive("/", ".rt4"))
+                        // TODO: proper format validation on fields here
+                        if (string.IsNullOrEmpty((string)formData["address"]))
                         {
-                            Log($"File found: {file}");
+                            Redirect(context, "/actions", error: "Invalid address provided.");
+                            return;
                         }
+                        else if (string.IsNullOrEmpty((string)formData["value"]))
+                        {
+                            Redirect(context, "/actions", error: "Invalid value provided.");
+                            return;
+                        }
+
+                        //foreach (var file in fm.ListFilesRecursive("/", ".rt4"))
+                        //{
+                        //    Log($"File found: {file}");
+                        //}
 
                         // TODO: Implement actual bulk edit
                         // TODO: Checksum calculation is slow, so do it in a thread, report progress back, and skip files that don't need to be updated.
@@ -128,12 +147,15 @@ namespace rt4k_esp32
                         break;
 
                     case "/readme":
-                        sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.readme));
+                        sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.readme).TrimStart('\u0001'));
+                        break;
 
+                    case "/videoTimings":
+                        sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.video_timings_calculator).TrimStart('\u0001'));
                         break;
 
                     case "/actions":
-                        sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.actions));
+                        sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.actions).TrimStart('\u0001'));
                         break;
 
                     case "/debugLog":

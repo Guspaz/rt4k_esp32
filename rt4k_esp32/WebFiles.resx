@@ -127,10 +127,16 @@
   <data name="base_template_header" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>web\base_template_header.htm;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="calc_js" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>web\calc.js.gz;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="readme" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>web\readme.htm;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
   <data name="showdown_min_js" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>web\showdown.min.js.gz;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="video_timings_calculator" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>web\video_timings_calculator.htm;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
 </root>

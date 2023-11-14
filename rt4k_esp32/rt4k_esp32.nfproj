@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Resource Include="web\calc.js.gz" />
     <Resource Include="web\base_template_footer.htm" />
     <Resource Include="web\readme.htm" />
     <Resource Include="web\showdown.min.js.gz" />
@@ -113,6 +114,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="web\actions.htm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="web\video_timings_calculator.htm" />
   </ItemGroup>
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.CSharp.targets" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.CSharp.targets')" />
   <ProjectExtensions>

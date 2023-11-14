@@ -1,0 +1,430 @@
+        <script src="calc.js" type="text/javascript"></script>
+        <h1>RetroTINK 4K Video Timings Calculator</h1>
+
+        A simplified RT4K derivative of <a href="https://tomverbeure.github.io/video_timings_calculator">Tom Verbeure's original calculator.</a>
+
+        <h2>Input Parameters</h2>
+            <form id="parameters">
+                <table>
+                    <tr>
+                        <td><label>Predefined Mode</label></td>
+                        <td><select id="predefined_mode" name="predefined_mode"><option>None</option></select></td>
+                    </tr>
+                    <tr>
+                        <td><label>Horizontal Pixels</label></td>
+                        <td><input id="horiz_pixels" type="text" value="3840" /></td>
+                        <td><label id="horiz_valid">Ok</label></td>
+                    </tr>
+                    <tr>
+                        <td><label>Vertical Pixels</label></td>
+                        <td><input id="vert_pixels" type="text" value="2160" /></td>
+                        <td><label id="vert_valid">Ok</label></td>
+                    </tr>
+                    <tr>
+                        <td><label>Refresh Rate (Hz)</label></td>
+                        <td><input id="refresh_rate" type="text" value="60" /></td>
+                        <td><label id="refresh_valid">Ok</label></td>
+                    </tr>
+
+                    <tr>
+                        <td><label>Bits per Component</label></td>
+                        <td><select id="bpc" name="bpc">
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="8" selected>8</option>
+                                <option value="10">10</option>
+                                <option value="12">12</option>
+                                <option value="16">16</option></select>
+                    </tr>
+                    <tr>
+                        <td><label>Color Format</label></td>
+                        <td><select id="color_fmt" name="color_fmt">
+                                <option value="rgb444" selected>RGB 4:4:4</option>
+                                <option value="yuv444">YUV 4:4:4</option>
+                                <option value="yuv422">YUV 4:2:2</option>
+                                <option value="yuv420">YUV 4:2:0</option></select>
+                    </tr>
+                    <tr>
+                        <td><label>Video Optimized</label></td>
+                        <td><select id="video_opt" name="video_opt"><option value="y">Yes</option><option value="n" selected>No</option></select>
+                    </tr>
+                </table>
+            </form>
+
+            <script type="text/javascript">
+                $('#predefined_mode').change( function(){ fill_predefined_parameters($('#predefined_mode').val());   update_status(); })
+                $('#horiz_pixels').change( function(){ check_integer($('#horiz_pixels').val(), '#horiz_valid');   update_status(); })
+                $('#vert_pixels') .change( function(){ check_integer($('#vert_pixels') .val(), '#vert_valid');    update_status(); })
+                $('#refresh_rate').change( function(){ update_status(); })
+                $('#margins')     .change( function(){ update_status(); })
+                $('#interlaced')  .change( function(){ update_status(); })
+                $('#bpc')         .change( function(){ update_status(); })
+                $('#color_fmt')   .change( function(){ update_status(); })
+                $('#video_opt')   .change( function(){ update_status(); })
+            </script>
+        <h2>Timings</h2>
+
+            <form id="timings">
+            <table cellspacing="1" bgcolor="#202020">
+                <tr bgcolor=#ffffff>
+                    <th></th>
+                    <th>CVT</th>
+                    <th>CVT-RB</th>
+                    <th>CVT-RBv2</th>
+                    <th>CEA-861</th>
+                    <th>DMT</th>
+                    <th>Custom</th>
+                    <th></th>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>Aspect Ratio</label></td>
+                    <td><label id="cvt-aspect_ratio"></label></td>
+                    <td><label id="cvt_rb-aspect_ratio"></label></td>
+                    <td><label id="cvt_rb2-aspect_ratio"></label></td>
+                    <td><label id="cea-aspect_ratio"></label></td>
+                    <td><label id="dmt-aspect_ratio"></label></td>
+                    <td><label id="custom-aspect_ratio"></label></td>
+                    <td></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>Pixel Clock</label></td>
+                    <td><label id="cvt-pclock"></label></td>
+                    <td><label id="cvt_rb-pclock"></label></td>
+                    <td><label id="cvt_rb2-pclock"></label></td>
+                    <td><label id="cea-pclock"></label></td>
+                    <td><label id="dmt-pclock"></label></td>
+                    <td><label id="custom-pclock"></label></td>
+                    <td><label>MHz</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>H Total</label></td>
+                    <td><label id="cvt-htotal"></label></td>
+                    <td><label id="cvt_rb-htotal"></label></td>
+                    <td><label id="cvt_rb2-htotal"></label></td>
+                    <td><label id="cea-htotal"></label></td>
+                    <td><label id="dmt-htotal"></label></td>
+                    <td><label id="custom-htotal"></label></td>
+                    <td><label>Pixels</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>H Active</label></td>
+                    <td><label id="cvt-hpixels"></label></td>
+                    <td><label id="cvt_rb-hpixels"></label></td>
+                    <td><label id="cvt_rb2-hpixels"></label></td>
+                    <td><label id="cea-hpixels"></label></td>
+                    <td><label id="dmt-hpixels"></label></td>
+                    <td><label id="custom-hpixels"></label></td>
+                    <td><label>Pixels</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>H Blank</label></td>
+                    <td><label id="cvt-hblank"></label></td>
+                    <td><label id="cvt_rb-hblank"></label></td>
+                    <td><label id="cvt_rb2-hblank"></label></td>
+                    <td><label id="cea-hblank"></label></td>
+                    <td><label id="dmt-hblank"></label></td>
+                    <td><input id="custom-hblank" type="text" value="80" size="6"/></td>
+                    <td><label>Pixels</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>H Front Porch</label></td>
+                    <td><label id="cvt-hfront"></label></td>
+                    <td><label id="cvt_rb-hfront"></label></td>
+                    <td><label id="cvt_rb2-hfront"></label></td>
+                    <td><label id="cea-hfront"></label></td>
+                    <td><label id="dmt-hfront"></label></td>
+                    <td></td>
+                    <td><label>Pixels</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>H Sync</label></td>
+                    <td><label id="cvt-hsync"></label></td>
+                    <td><label id="cvt_rb-hsync"></label></td>
+                    <td><label id="cvt_rb2-hsync"></label></td>
+                    <td><label id="cea-hsync"></label></td>
+                    <td><label id="dmt-hsync"></label></td>
+                    <td></td>
+                    <td><label>Pixels</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>H Back Porch</label></td>
+                    <td><label id="cvt-hback"></label></td>
+                    <td><label id="cvt_rb-hback"></label></td>
+                    <td><label id="cvt_rb2-hback"></label></td>
+                    <td><label id="cea-hback"></label></td>
+                    <td><label id="dmt-hback"></label></td>
+                    <td></td>
+                    <td><label>Pixels</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>H Sync Polarity</label></td>
+                    <td><label id="cvt-hpol"></label></td>
+                    <td><label id="cvt_rb-hpol"></label></td>
+                    <td><label id="cvt_rb2-hpol"></label></td>
+                    <td><label id="cea-hpol"></label></td>
+                    <td><label id="dmt-hpol"></label></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>H Freq</label></td>
+                    <td><label id="cvt-hfreq"></label></td>
+                    <td><label id="cvt_rb-hfreq"></label></td>
+                    <td><label id="cvt_rb2-hfreq"></label></td>
+                    <td><label id="cea-hfreq"></label></td>
+                    <td><label id="dmt-hfreq"></label></td>
+                    <td><label id="custom-hfreq"></label></td>
+                    <td><label>kHz</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>H Period</label></td>
+                    <td><label id="cvt-hperiod"></label></td>
+                    <td><label id="cvt_rb-hperiod"></label></td>
+                    <td><label id="cvt_rb2-hperiod"></label></td>
+                    <td><label id="cea-hperiod"></label></td>
+                    <td><label id="dmt-hperiod"></label></td>
+                    <td><label id="custom-hperiod"></label></td>
+                    <td><label>us</label></td>
+                </tr>
+
+                <tr bgcolor=#ffffff>
+                    <td><label>V Total</label></td>
+                    <td><label id="cvt-vtotal"></label></td>
+                    <td><label id="cvt_rb-vtotal"></label></td>
+                    <td><label id="cvt_rb2-vtotal"></label></td>
+                    <td><label id="cea-vtotal"></label></td>
+                    <td><label id="dmt-vtotal"></label></td>
+                    <td><label id="custom-vtotal"></label></td>
+                    <td><label>Lines</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>V Active</label></td>
+                    <td><label id="cvt-vpixels"></label></td>
+                    <td><label id="cvt_rb-vpixels"></label></td>
+                    <td><label id="cvt_rb2-vpixels"></label></td>
+                    <td><label id="cea-vpixels"></label></td>
+                    <td><label id="dmt-vpixels"></label></td>
+                    <td><label id="custom-vpixels"></label></td>
+                    <td><label>Lines</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>V Blank</label></td>
+                    <td><label id="cvt-vblank"></label></td>
+                    <td><label id="cvt_rb-vblank"></label></td>
+                    <td><label id="cvt_rb2-vblank"></label></td>
+                    <td><label id="cea-vblank"></label></td>
+                    <td><label id="dmt-vblank"></label></td>
+                    <td><input id="custom-vblank" type="text" value="6" size="6"/></td>
+                    <td><label>Lines</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>V Blank Duration</label></td>
+                    <td><label id="cvt-vblank_duration"></label></td>
+                    <td><label id="cvt_rb-vblank_duration"></label></td>
+                    <td><label id="cvt_rb2-vblank_duration"></label></td>
+                    <td><label id="cea-vblank_duration"></label></td>
+                    <td><label id="dmt-vblank_duration"></label></td>
+                    <td><label id="custom-vblank_duration"></label></td>
+                    <td><label>us</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>V Front Porch</label></td>
+                    <td><label id="cvt-vfront"></label></td>
+                    <td><label id="cvt_rb-vfront"></label></td>
+                    <td><label id="cvt_rb2-vfront"></label></td>
+                    <td><label id="cea-vfront"></label></td>
+                    <td><label id="dmt-vfront"></label></td>
+                    <td></td>
+                    <td><label>Lines</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>V Sync</label></td>
+                    <td><label id="cvt-vsync"></label></td>
+                    <td><label id="cvt_rb-vsync"></label></td>
+                    <td><label id="cvt_rb2-vsync"></label></td>
+                    <td><label id="cea-vsync"></label></td>
+                    <td><label id="dmt-vsync"></label></td>
+                    <td></td>
+                    <td><label>Lines</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>V Back Porch</label></td>
+                    <td><label id="cvt-vback"></label></td>
+                    <td><label id="cvt_rb-vback"></label></td>
+                    <td><label id="cvt_rb2-vback"></label></td>
+                    <td><label id="cea-vback"></label></td>
+                    <td><label id="dmt-vback"></label></td>
+                    <td></td>
+                    <td><label>Lines</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>V Sync Polarity</label></td>
+                    <td><label id="cvt-vpol"></label></td>
+                    <td><label id="cvt_rb-vpol"></label></td>
+                    <td><label id="cvt_rb2-vpol"></label></td>
+                    <td><label id="cea-vpol"></label></td>
+                    <td><label id="dmt-vpol"></label></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>V Freq</label></td>
+                    <td><label id="cvt-vfreq"></label></td>
+                    <td><label id="cvt_rb-vfreq"></label></td>
+                    <td><label id="cvt_rb2-vfreq"></label></td>
+                    <td><label id="cea-vfreq"></label></td>
+                    <td><label id="dmt-vfreq"></label></td>
+                    <td><label id="custom-vfreq"></label></td>
+                    <td><label>Hz</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>V Period</label></td>
+                    <td><label id="cvt-vperiod"></label></td>
+                    <td><label id="cvt_rb-vperiod"></label></td>
+                    <td><label id="cvt_rb2-vperiod"></label></td>
+                    <td><label id="cea-vperiod"></label></td>
+                    <td><label id="dmt-vperiod"></label></td>
+                    <td><label id="custom-vperiod"></label></td>
+                    <td><label>ms</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>Peak BW (10/8)</label></td>
+                    <td><label id="cvt-peak_bw"></label></td>
+                    <td><label id="cvt_rb-peak_bw"></label></td>
+                    <td><label id="cvt_rb2-peak_bw"></label></td>
+                    <td><label id="cea-peak_bw"></label></td>
+                    <td><label id="dmt-peak_bw"></label></td>
+                    <td><label id="custom-peak_bw"></label></td>
+                    <td><label>Gbps</label></td>
+                </tr>
+                <!--<tr bgcolor=#ffffff>
+                    <td><label>Line BW</label></td>
+                    <td><label id="cvt-line_bw"></label></td>
+                    <td><label id="cvt_rb-line_bw"></label></td>
+                    <td><label id="cvt_rb2-line_bw"></label></td>
+                    <td><label id="cea-line_bw"></label></td>
+                    <td><label id="dmt-line_bw"></label></td>
+                    <td><label id="custom-line_bw"></label></td>
+                    <td><label>Mbit/s</label></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>Active BW</label></td>
+                    <td><label id="cvt-active_bw"></label></td>
+                    <td><label id="cvt_rb-active_bw"></label></td>
+                    <td><label id="cvt_rb2-active_bw"></label></td>
+                    <td><label id="cea-active_bw"></label></td>
+                    <td><label id="dmt-active_bw"></label></td>
+                    <td><label id="custom-active_bw"></label></td>
+                    <td><label>Mbit/s</label></td>
+                </tr>-->
+                <tr bgcolor=#ffffff>
+                    <td><label>DMT ID</label></td>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td><label id="dmt-dmt_id"></label></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>DMT timing standard</label></td>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td><label id="dmt-dmt_type"></label></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>Std 2-byte code</label></td>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td><label id="dmt-dmt_2byte_code"></label></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>CVT 3-byte code</label></td>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td><label id="dmt-dmt_3byte_code"></label></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>VIC</label></td>
+                    <td/>
+                    <td/>
+                    <td/>
+                    <td><label id="cea-vic"></label></td>
+                    <td/>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr bgcolor=#ffffff><td colspan=8><b>RT4K Custom Modelines</b></td></tr>
+                <tr bgcolor=#ffffff>
+                    <td>CVT</td>
+                    <td colspan=7><code><label id="cvt-modeline"></label></code></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td>CVT-RB</td>
+                    <td colspan=7><code><label id="cvt_rb-modeline"></label></code></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td>CVT-RBv2</td>
+                    <td colspan=7><code><label id="cvt_rb2-modeline"></label></code></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td>CEA-861</td>
+                    <td colspan=7><code><label id="cea-modeline"></label></code></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td>DMT</td>
+                    <td colspan=7><code><label id="dmt-modeline"></label></code></td>
+                </tr>
+                <tr bgcolor=#ffffff>
+                    <td>Custom</td>
+                    <td colspan=7><code><label id="custom-modeline"></label></code></td>
+                </tr>
+                <tr bgcolor=#ffffff><td colspan=8><b>HDMI 2.0 (bandwidth)</b></td></tr>
+                <tr bgcolor=#ffffff>
+                    <td><label>RT4K (600 MHz)</label></td>
+                    <td><label id="cvt-hdmi_2_0"></label></td>
+                    <td><label id="cvt_rb-hdmi_2_0"></label></td>
+                    <td><label id="cvt_rb2-hdmi_2_0"></label></td>
+                    <td><label id="cea-hdmi_2_0"></label></td>
+                    <td><label id="dmt-hdmi_2_0"></label></td>
+                    <td><label id="custom-hdmi_2_0"></label></td>
+                    <td><label>Max 18 Gbps</label></td>
+                </tr>
+            </table>
+            </form>
+
+            <ul>
+                <li>When looking up a DMT or CEA-861 resolution for a particular refresh rate, the tool
+                    rounds the specified refresh rate to the closest integer and then matches against rounded 
+                    DMT and CEA refresh rates. For example, if you specify a refresh rate of 60.1Hz, the tool will show DMT and CEA refresh
+                    rates of 59.94Hz.</li>
+                <li>There are some CEA VIC numbers with multiple timings that differ slightly in their Vtotal, and
+                    thus in their refresh rates. For example, VIC timings 23 and 24 have a resolution of 
+                    1440x288 can have a refresh rate of 50.080Hz, 49.920Hz, and 49.761Hz. When you search for one of
+                    those exostic timings, the tool will choose one of the options, but not the other. The exact
+                    behavior is undefined.</li>
+            </ul>
+
+            <script type="text/javascript">
+
+                $('#custom-hblank').change( function(){  update_status(); });
+                $('#custom-vblank').change( function(){  update_status(); });
+
+                
+
+                window.onload = onload_init();
+
+            </script>
