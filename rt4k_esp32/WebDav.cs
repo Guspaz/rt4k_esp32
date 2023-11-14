@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -14,6 +15,8 @@ namespace rt4k_esp32
         private string ipCache = string.Empty;
 
         public static int Port;
+
+        private Hashtable locks = new Hashtable();
 
         public WebDav(FileManager fileManager, LogDelegate log, int port) : base(log, port, "WebDAV")
         {
@@ -106,7 +109,7 @@ namespace rt4k_esp32
             
             sw.WriteLine( "<D:multistatus xmlns:D=\"DAV:\" xmlns:Z=\"urn:schemas-microsoft-com:\">");
             sw.WriteLine( "  <D:response>");
-            sw.WriteLine($"    <D:href>{IPGlobalProperties.GetIPAddress()}{EncodePath(path)}</D:href>");
+            sw.WriteLine($"    <D:href>http://{IPGlobalProperties.GetIPAddress()}:{Port}{EncodePath(path)}</D:href>");
             sw.WriteLine( "    <D:propstat>");
             sw.WriteLine( "      <D:status>HTTP/1.1 200 OK</D:status>");
             sw.WriteLine( "      <D:prop>");
@@ -202,14 +205,41 @@ namespace rt4k_esp32
 
         private void Lock(HttpListenerContext context)
         {
-            // We don't actually support locking, so just give Windows a random Guid to pretend we do.
+            if (context.Request.ContentLength64 > 65536)
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.RequestEntityTooLarge;
+                return;
+            }
+
+            byte[] buf = new byte[context.Request.ContentLength64];
+            context.Request.InputStream.Read(buf, 0, buf.Length);
+            //string input = Encoding.UTF8.GetString(buf, 0, buf.Length);
+
+            // <?xml version="1.0" encoding="utf-8" ?><D:lockinfo xmlns:D="DAV:"><D:lockscope><D:exclusive/></D:lockscope><D:locktype><D:write/></D:locktype><D:owner><D:href>DESKINTOSH\Guspaz</D:href></D:owner></D:lockinfo>
+
+
             context.Response.ContentType = "text/xml";
+
+            var path = GetPath(context);
+            string guid = Guid.NewGuid().ToString();
+            if (locks.Contains(path))
+            {
+                locks[path] = guid;
+            }
+            else
+            {
+                locks.Add(path, guid);
+            }
+
             var sw = new StreamWriter(context.Response.OutputStream);
 
             sw.WriteLine("<D:prop xmlns:D=\"DAV:\">");
             sw.WriteLine("  <D:lockdiscovery>");
             sw.WriteLine("    <D:activelock>");
-            sw.WriteLine($"      <D:locktoken><D:href>urn:uuid:{Guid.NewGuid()}</D:href></D:locktoken>");
+            sw.WriteLine("      <D:locktype><D:write/></D:locktype>");
+            sw.WriteLine("      <D:lockscope><D:exclusive/></D:lockscope>");
+            sw.WriteLine("      <D:depth>0</D:depth>");
+            sw.WriteLine($"     <D:locktoken><D:href>urn:uuid:{guid}</D:href></D:locktoken>");
             sw.WriteLine("    </D:activelock>");
             sw.WriteLine("  </D:lockdiscovery>");
             sw.WriteLine("</D:prop>");
@@ -219,6 +249,13 @@ namespace rt4k_esp32
         private void Unlock(HttpListenerContext context)
         {
             context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+
+            var path = GetPath(context);
+            string guid = Guid.NewGuid().ToString();
+            if (locks.Contains(path))
+            {
+                locks.Remove(path);
+            }
         }
 
         private void Get(HttpListenerContext context, bool headMode = false)
@@ -240,7 +277,15 @@ namespace rt4k_esp32
         {
             var path = GetPath(context);
 
-            context.Response.StatusCode = (int)HttpStatusCode.Created;
+            if (fm.FileExists(path))
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NoContent;
+            }
+            else
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Created;
+            }
+
             fm.WriteFileToSdCard(path, context.Request);
             context.Response.OutputStream.Flush();
         }
@@ -248,6 +293,7 @@ namespace rt4k_esp32
         private void PropFind(HttpListenerContext context)
         {
             var path = GetPath(context);
+            context.Response.StatusCode = 207;
             context.Response.ContentType = "text/xml";
 
             var depthHeader = context.Request.Headers["Depth"];
@@ -295,7 +341,7 @@ namespace rt4k_esp32
             var fp = isDirectory ? fm.GetDirectoryProperties(path) : fm.GetFileProperties(path);
 
             sw.WriteLine($"  <D:response>");
-            sw.WriteLine($"    <D:href>{ipCache}{EncodePath(path)}{(isDirectory ? "/" : "")}</D:href>");
+            sw.WriteLine($"    <D:href>http://{ipCache}:{Port}{EncodePath(path)}{(isDirectory ? "/" : "")}</D:href>");
             sw.WriteLine($"    <D:propstat>");
             sw.WriteLine($"      <D:prop>");
             //sb.AppendLine($"        <D:creationdate>{fp.CreatedDate.ToString("o")}</D:creationdate>");
@@ -308,6 +354,25 @@ namespace rt4k_esp32
                 //sw.WriteLine($"        <D:getcontenttype>application/octet-stream</D:getcontenttype>");
             }
             sw.WriteLine($"        <D:resourcetype>{(isDirectory ? "<D:collection/>" : "")}</D:resourcetype>");
+            sw.WriteLine($"        <D:supportedlock>");
+            sw.WriteLine($"          <D:lockentry>");
+            sw.WriteLine($"            <D:lockscope><D:exclusive/></D:lockscope>");
+            sw.WriteLine($"            <D:locktype><D:write/></D:locktype>");
+            sw.WriteLine($"          </D:lockentry>");
+            sw.WriteLine($"        </D:supportedlock>");
+
+            if (locks.Contains(path))
+            {
+                sw.WriteLine("        <D:lockdiscovery>");
+                sw.WriteLine("          <D:activelock>");
+                sw.WriteLine("            <D:locktype><D:write/></D:locktype>");
+                sw.WriteLine("            <D:lockscope><D:exclusive/></D:lockscope>");
+                sw.WriteLine("            <D:depth>0</D:depth>");
+                sw.WriteLine($"           <D:locktoken><D:href>urn:uuid:{(string)locks[path]}</D:href></D:locktoken>");
+                sw.WriteLine("          </D:activelock>");
+                sw.WriteLine("        </D:lockdiscovery>");
+            }
+
             sw.WriteLine($"      </D:prop>");
             sw.WriteLine($"      <D:status>HTTP/1.1 200 OK</D:status>");
             sw.WriteLine($"    </D:propstat>");

@@ -85,7 +85,7 @@ namespace rt4k_esp32
             //    }
             //}
 
-            while (webLog.Count > 100)
+            while (webLog.Count > 150)
             {
                 webLog.Dequeue();
             }
