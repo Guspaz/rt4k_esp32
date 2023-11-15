@@ -66,8 +66,9 @@ namespace rt4k_esp32
             var webInterface = new WebInterface(fileManager, Log, 80);
             var webDAV = new WebDav(fileManager, Log, 81);
 
-            // TODO: Do we need to keep this thread alive?
             Thread.Sleep(Timeout.Infinite);
+
+            // TODO: Add support for reboot after a long idle period (like 12 or 16 hours) in case there's any slow memory leaks or something.
         }
 
         public static void Log(string message)

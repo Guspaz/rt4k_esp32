@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -75,22 +76,63 @@ namespace rt4k_esp32
                         var formData = ParseUrlParams(ReadRequest());
                         Log($"Writing value {formData["value"]} to address {formData["address"]}");
 
-                        // TODO: proper format validation on fields here
-                        if (string.IsNullOrEmpty((string)formData["address"]))
+                        string paramAddress = (string)formData["address"];
+                        string paramValue = (string)formData["value"];
+
+                        if (string.IsNullOrEmpty(paramAddress))
+                        {
+                            Redirect(context, "/actions", error: "Address not provided.");
+                            return;
+                        }
+                        
+                        if (string.IsNullOrEmpty(paramValue))
+                        {
+                            Redirect(context, "/actions", error: "Value not provided.");
+                            return;
+                        }
+
+                        bool validAddress = int.TryParse(paramAddress, out int address);
+
+                        if (!validAddress || address < 0 || address > Profile.RT4K_PROFILE_SIZE)
                         {
                             Redirect(context, "/actions", error: "Invalid address provided.");
                             return;
                         }
-                        else if (string.IsNullOrEmpty((string)formData["value"]))
+
+                        byte[] value;
+
+                        try
                         {
-                            Redirect(context, "/actions", error: "Invalid value provided.");
+                            value = Profile.HexStringToByteArray(paramValue);
+                        }
+                        catch
+                        {
+                            Redirect(context, "/actions", error: "Value must be a valid hex string.");
                             return;
                         }
 
-                        //foreach (var file in fm.ListFilesRecursive("/", ".rt4"))
-                        //{
-                        //    Log($"File found: {file}");
-                        //}
+                        var files = fm.ListFilesRecursive("/", ".rt4");
+
+                        Log($"Found {files.Length} files to edit.");
+
+                        int filesEdited = 0;
+
+                        foreach (var file in files)
+                        {
+                            // Check to see if the file needs to be updated (saves the slow full read/checksum/write)
+                            if (fm.CheckFileValue(file, address, value))
+                            {
+                                continue;
+                            }
+
+                            var profile = new Profile(fm.ReadFileRaw(file));
+                            profile.UpdateBytes(address, value);
+                            fm.WriteFileRaw(file, profile.Save());
+                            filesEdited++;
+                            // Log($"Updated {file}");
+                        }
+
+                        Log($"Updated {filesEdited} out of {files.Length} files");
 
                         // TODO: Implement actual bulk edit
                         // TODO: Checksum calculation is slow, so do it in a thread, report progress back, and skip files that don't need to be updated.

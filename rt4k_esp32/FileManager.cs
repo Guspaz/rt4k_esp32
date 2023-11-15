@@ -274,7 +274,6 @@ namespace rt4k_esp32
 
         internal void WriteFileToHttpResponse(string path, HttpListenerContext context, bool sendFile = true)
         {
-            // TODO: support if-modified-since
             try
             {
                 path = PathToSd(path);
@@ -532,7 +531,6 @@ namespace rt4k_esp32
                 return new FileProperties
                 {
                     FileSize = 0,
-                    //fileProperties.CreatedDate = DateTime.MinValue; // TODO: Figure out how to get directory created dates
                     LastModifiedDate = Directory.GetLastWriteTime(path)
                 };
             }
@@ -561,6 +559,43 @@ namespace rt4k_esp32
             {
                 Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] CreateDirectory(\"{path}\")");
                 LogException(ex);
+            }
+            finally
+            {
+                ReleaseSD();
+            }
+        }
+
+        internal bool CheckFileValue(string path, int address, byte[] value)
+        {
+            try
+            {
+                path = PathToSd(path);
+                GrabSD();
+
+                byte[] readBuf = new byte[value.Length];
+
+                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    fs.Seek(address, SeekOrigin.Begin);
+                    fs.Read(readBuf, 0, readBuf.Length);
+                }
+
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (value[i] != readBuf[i])
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log($"EXCEPTION: [{Thread.CurrentThread.ManagedThreadId}] CheckFileValue(\"{path}\", {address}, value)");
+                LogException(ex);
+                return false;
             }
             finally
             {

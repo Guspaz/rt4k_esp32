@@ -6,8 +6,9 @@ namespace rt4k_esp32
     {
         private byte[] profileData;
 
-        const int RT4K_PROFILE_CRC_OFFSET = 32;
-        const int RT4K_PROFILE_HEADER_SIZE = 128;
+        private const int RT4K_PROFILE_CRC_OFFSET = 32;
+        private const int RT4K_PROFILE_HEADER_SIZE = 128;
+        public const int RT4K_PROFILE_SIZE = 23004;
 
         private static int rt_crc(byte[] data)
         {
@@ -63,6 +64,19 @@ namespace rt4k_esp32
 
             // Write the profile to a stream
             return profileData;
+        }
+
+        public static byte[] HexStringToByteArray(string hex)
+        {
+            if (hex.Length % 2 != 0)
+                throw new ArgumentException("The hexadecimal string must have an even length");
+
+            byte[] bytes = new byte[hex.Length / 2];
+            for (int i = 0; i < hex.Length; i += 2)
+            {
+                bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            }
+            return bytes;
         }
     }
 }
