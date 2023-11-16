@@ -37,6 +37,7 @@ namespace rt4k_esp32
         internal enum StringResources : short
         {
             readme = -23641,
+            settings = -20938,
             base_template_header = -5716,
             actions = 10353,
             video_timings_calculator = 20985,

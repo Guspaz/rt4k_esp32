@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Resource Include="web\settings.htm" />
     <Resource Include="web\calc.js.gz" />
     <Resource Include="web\base_template_footer.htm" />
     <Resource Include="web\readme.htm" />

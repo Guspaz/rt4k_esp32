@@ -192,6 +192,10 @@ namespace rt4k_esp32
                         sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.readme).TrimStart('\u0001'));
                         break;
 
+                    case "/settings":
+                        sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.settings).TrimStart('\u0001'));
+                        return;
+
                     case "/videoTimings":
                         sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.video_timings_calculator).TrimStart('\u0001'));
                         break;
