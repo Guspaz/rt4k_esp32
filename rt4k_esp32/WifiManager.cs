@@ -161,5 +161,7 @@ namespace rt4k_esp32
                 Log("No cached credentials found");
             }
         }
+
+        public bool IsConnected => IPGlobalProperties.GetIPAddress() != null && WifiNetworkHelper.Status == NetworkHelperStatus.NetworkIsReady;
     }
 }

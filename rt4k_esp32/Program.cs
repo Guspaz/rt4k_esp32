@@ -63,6 +63,12 @@ namespace rt4k_esp32
 
             wifiManager.WifiBoot();
 
+            // Wait until we're connected
+            while (!wifiManager.IsConnected)
+            {
+                Thread.Sleep(0);
+            }
+
             var webInterface = new WebInterface(fileManager, Log, 80);
             var webDAV = new WebDav(fileManager, Log, 81);
 

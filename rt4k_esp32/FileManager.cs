@@ -228,6 +228,7 @@ namespace rt4k_esp32
             }
         }
 
+        // TODO: Benchmark against native implementation
         internal int MathMin(int left, int right) => left < right ? left : right;
 
         internal void WriteFileToSdCard(string path, HttpListenerRequest request)
