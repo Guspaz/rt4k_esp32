@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Web;
+using CCSWE.nanoFramework.Threading;
 
 namespace rt4k_esp32
 {
@@ -15,7 +16,7 @@ namespace rt4k_esp32
         private readonly int Port;
         private readonly string Name;
         private HttpListener httpListener;
-        private HttpListenerContext context;
+        private ConsumerThreadPool threadPool;
 
         public WebServer(LogDelegate log, int port, string name)
         {
@@ -23,26 +24,19 @@ namespace rt4k_esp32
             this.Port = port;
             this.Name = name;
 
+            this.threadPool = new ConsumerThreadPool(4, HandleContext);
+
             this.Start();
         }
 
         protected abstract void Route(HttpListenerContext context);
 
-        private void HandleContext()
-        {
-            // First, wait for a request
-            try
-            {
-                context = httpListener.GetContext();
-            }
-            catch (Exception ex)
-            {
-                Log($"[{Thread.CurrentThread.ManagedThreadId}:{Name}] Uncaught Exception in HttpListener.GetContext()");
-                Log(ex.ToString());
-                throw;
-            }
 
-            // Second, service the request
+        private void HandleContext(object queuedContext)
+        {
+            HttpListenerContext context = (HttpListenerContext)queuedContext;
+
+            // First, service the request
             try
             {
                 Log($"{Name}: {context.Request.HttpMethod} {context.Request.RawUrl}");
@@ -60,7 +54,7 @@ namespace rt4k_esp32
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
             }
 
-            // Third, clean up after the request
+            // Second, clean up after the request
             try
             {
                 context?.Response?.Close();
@@ -97,7 +91,16 @@ namespace rt4k_esp32
                     {
                         try
                         {
-                            HandleContext();
+                            try
+                            {
+                                threadPool.Enqueue(httpListener.GetContext());
+                            }
+                            catch (Exception ex)
+                            {
+                                Log($"[{Thread.CurrentThread.ManagedThreadId}:{Name}] Uncaught Exception in HttpListener.GetContext()");
+                                Log(ex.ToString());
+                                throw;
+                            }
                         }
                         catch
                         {
@@ -105,6 +108,7 @@ namespace rt4k_esp32
                         }
                     }
 
+                    // TODO: Sometimes a single closed request kills the whole thing, investigate if that still happens with thread pools
                     // Something went wrong, prepare to restart
                     Log($"{Name} server failed, restarting");
 
@@ -118,7 +122,7 @@ namespace rt4k_esp32
             }).Start();
         }
 
-        protected string ReadRequest()
+        protected static string ReadRequest(HttpListenerContext context)
         {
             byte[] buf = new byte[context.Request.ContentLength64];
             context.Request.InputStream.Read(buf, 0, buf.Length);

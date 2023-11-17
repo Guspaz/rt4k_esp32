@@ -73,7 +73,7 @@ namespace rt4k_esp32
 
                     case "/bulkEdit":
                         Log("Bulk edit request received");
-                        var formData = ParseUrlParams(ReadRequest());
+                        var formData = ParseUrlParams(ReadRequest(context));
                         Log($"Writing value {formData["value"]} to address {formData["address"]}");
 
                         string paramAddress = (string)formData["address"];
