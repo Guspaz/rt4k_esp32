@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -12,12 +11,14 @@ namespace rt4k_esp32
     internal class WebInterface : WebServer
     {
         private readonly FileManager fm;
+        private readonly SettingsManager settings;
         private readonly string base_template_header;
         private readonly string base_template_footer;
 
-        public WebInterface(FileManager fileManager, LogDelegate log, int port) : base(log, port, "WebUI")
+        public WebInterface(FileManager fileManager, SettingsManager settingsManager, LogDelegate log, int port) : base(log, port, "WebUI")
         {
             fm = fileManager;
+            settings = settingsManager;
 
             // Pre-cache web assets, we've got psram to spare right now
             base_template_header = WebFiles.GetString(WebFiles.StringResources.base_template_header).TrimStart('\u0001');
@@ -68,7 +69,12 @@ namespace rt4k_esp32
                         Log(" ***** Disabling wifi next boot, remove and re-insert SD card to reboot it");
                         File.Create("I:\\disableWifi");
 
-                        Redirect(context, "/actions", success: "Disabling wifi next boot, remove and re-insert SD card to reboot it");
+                        Redirect(context, "/settings", success: "Disabling wifi next boot, remove and re-insert SD card to reboot it");
+                        return;
+
+                    case "/rebootEsp32":
+                        Esp32Helper.RebootWithDelay(5000);
+                        Redirect(context, "/settings", success: "Rebooting ESP32");
                         return;
 
                     case "/bulkEdit":
@@ -194,6 +200,10 @@ namespace rt4k_esp32
 
                     case "/settings":
                         sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.settings).TrimStart('\u0001'));
+                        sw.WriteLine("<script>");
+                        sw.WriteLine($"document.getElementById('wifiDelay').value = '{settings.WifiDelay}';");
+                        sw.WriteLine($"document.getElementById('lockSdForWifiDelay').checked = {settings.LockSdForWifiDelay.ToString().ToLower()};");
+                        sw.WriteLine("</script>");
                         return;
 
                     case "/videoTimings":

@@ -51,6 +51,8 @@ namespace rt4k_esp32
             Configuration.SetPinFunction(2, DeviceFunction.SPI1_MISO);
             Configuration.SetPinFunction(15, DeviceFunction.SPI1_MOSI);
             Configuration.SetPinFunction(14, DeviceFunction.SPI1_CLOCK);
+
+            Log("SdManager started");
         }
 
         private bool IsSdAvailable()

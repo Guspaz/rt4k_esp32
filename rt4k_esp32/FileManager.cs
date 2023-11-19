@@ -35,6 +35,8 @@ namespace rt4k_esp32
             getLengthNative = dummyFileStream.GetType().GetMethod("GetLengthNative", BindingFlags.NonPublic | BindingFlags.Instance);
             readNative = dummyFileStream.GetType().GetMethod("ReadNative", BindingFlags.NonPublic | BindingFlags.Instance);
             writeNative = dummyFileStream.GetType().GetMethod("WriteNative", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            Log("FileManager started");
         }
 
         internal string ReadFile(string path, bool instantRelease = false)

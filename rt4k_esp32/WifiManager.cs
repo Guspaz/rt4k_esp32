@@ -27,6 +27,8 @@ namespace rt4k_esp32
 
             this.fileManager = fileManager;
             this.fileManager.WifiIniUpdated += UpdateCachedWifiCreds;
+
+            Log("WifiManager started");
         }
 
         internal void WifiBoot()
@@ -87,14 +89,7 @@ namespace rt4k_esp32
                     }
 
                     File.Create("I:\\wifiReboot");
-                    new Thread(() =>
-                    {
-                        Thread.Sleep(5000);
-                        // TODO: Release SD on reboot?
-                        //SD_SWITCH.Write(PinValue.High);
-                        Log("Rebooting");
-                        nanoFramework.Runtime.Native.Power.RebootDevice();
-                    }).Start();
+                    Esp32Helper.RebootWithDelay(5000);
                 }
                 else
                 {

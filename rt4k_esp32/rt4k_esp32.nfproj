@@ -19,6 +19,7 @@
   </PropertyGroup>
   <Import Project="$(NanoFrameworkProjectSystemPath)NFProjectSystem.props" Condition="Exists('$(NanoFrameworkProjectSystemPath)NFProjectSystem.props')" />
   <ItemGroup>
+    <Compile Include="Esp32Helper.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="FileProperties.cs" />
     <Compile Include="IniParser.cs" />
@@ -26,6 +27,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SdManager.cs" />
+    <Compile Include="SettingsFile.cs" />
+    <Compile Include="SettingsManager.cs" />
     <Compile Include="StringExtension.cs" />
     <Compile Include="WebDav.cs" />
     <Compile Include="WebFiles.Designer.cs">
@@ -74,6 +77,9 @@
     </Reference>
     <Reference Include="nanoFramework.Hardware.Esp32">
       <HintPath>..\packages\nanoFramework.Hardware.Esp32.1.6.12\lib\nanoFramework.Hardware.Esp32.dll</HintPath>
+    </Reference>
+    <Reference Include="nanoFramework.Json">
+      <HintPath>..\packages\nanoFramework.Json.2.2.103\lib\nanoFramework.Json.dll</HintPath>
     </Reference>
     <Reference Include="nanoFramework.ResourceManager">
       <HintPath>..\packages\nanoFramework.ResourceManager.1.2.19\lib\nanoFramework.ResourceManager.dll</HintPath>

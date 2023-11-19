@@ -14,6 +14,7 @@ namespace rt4k_esp32
         private static SdManager sdManager;
         private static FileManager fileManager;
         private static WifiManager wifiManager;
+        private static SettingsManager settingsManager;
 
         public static void Main()
         {
@@ -57,6 +58,7 @@ namespace rt4k_esp32
                 Thread.Sleep(Timeout.Infinite);
             }
 
+            settingsManager = new SettingsManager(Log);
             sdManager = new SdManager(Log);
             fileManager = new FileManager(Log, sdManager);
             wifiManager = new WifiManager(Log, fileManager);
@@ -69,7 +71,7 @@ namespace rt4k_esp32
                 Thread.Sleep(0);
             }
 
-            var webInterface = new WebInterface(fileManager, Log, 80);
+            var webInterface = new WebInterface(fileManager, settingsManager, Log, 80);
             var webDAV = new WebDav(fileManager, Log, 81);
 
             Thread.Sleep(Timeout.Infinite);
