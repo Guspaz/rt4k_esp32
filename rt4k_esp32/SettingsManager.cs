@@ -13,8 +13,6 @@ namespace rt4k_esp32
 
         internal SettingsManager(LogDelegate logFunc)
         {
-            File.Delete(SETTINGS_FILE);
-
             Log = logFunc;
 
             Log("FileManager starting up");
