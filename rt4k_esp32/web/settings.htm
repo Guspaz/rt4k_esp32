@@ -1,11 +1,12 @@
 ﻿<h1>Settings</h1>
-
-<div class='w3-panel'>
-    <table class='w3-table-all w3-card' style='max-width: 1000px;'>
-        <tr><th width="300px">Disable wifi next boot</th><td><input type="button" onclick="location.href='/disableWifi';" value="Disable" /></td><td class="w3-small">Click this button to stop the ESP32 from connecting to wifi on the next boot, letting you use the SD card at high speed with Windows without interruption. This only applies temporarily to the next boot, to restore wifi, reboot the ESP32 again (unplugging/replugging the SD will suffice).</td></tr>
-        <tr><th>Reboot ESP32</th><td><input type="button" onclick="location.href='/rebootEsp32';" value="Reboot" /></td><td class="w3-small">Reboots the ESP32.</td></tr>
-        <tr><th>Delay refreshing wifi.ini</th><td><input type="text" id="wifiDelay" name="wifiDelay" size="6"></td><td class="w3-small">Time (in seconds) after the ESP32 boots before it will try to access the SD card to read the wifi.ini file, which will temporarily disconnect the SD card from the host device (RT4K, Windows, etc).</td></tr>
-        <tr><th>Lock SD until wifi.ini refresh</th><td><input type="checkbox" id="lockSdForWifiDelay" name="lockSD"></td><td class="w3-small">When enabled, lock all access to the SD card (WebDAV, primarily) from accessing the SD card until the wifi.ini timer has elapsed. This prevents anything (like Windows randomly refreshing the WebDAV contents) from interrupt the RT4K boot or firmware update.</td></tr>
-    </table>
-</div>
-<div class='w3-panel w3-right-align' style="max-width: 1000px;"><input type="submit" value="Save"></div>
+<form action="/settings" method="post">
+    <div class='w3-panel'>
+        <table class='w3-table-all w3-card' style='max-width: 1000px;'>
+            <tr><th width="300px">Disable wifi next boot</th><td><input type="button" onclick="location.href='/disableWifi';" value="Disable" /></td><td class="w3-small">Click this button to stop the ESP32 from connecting to wifi on the next boot, letting you use the SD card at high speed with Windows without interruption. This only applies temporarily to the next boot, to restore wifi, reboot the ESP32 again (unplugging/replugging the SD will suffice).</td></tr>
+            <tr><th>Reboot ESP32</th><td><input type="button" onclick="location.href='/rebootEsp32';" value="Reboot" /></td><td class="w3-small">Reboots the ESP32.</td></tr>
+            <tr><th>Delay refreshing wifi.ini</th><td><input type="text" id="wifiDelay" name="wifiDelay" size="6"></td><td class="w3-small">Time (in seconds) after the ESP32 boots before it will try to access the SD card to read the wifi.ini file, which will temporarily disconnect the SD card from the host device (RT4K, Windows, etc).</td></tr>
+            <tr><th>Lock SD until wifi.ini refresh</th><td><input type="checkbox" id="lockSdForWifiDelay" name="lockSD"></td><td class="w3-small">When enabled, lock all access to the SD card (WebDAV, primarily) from accessing the SD card until the wifi.ini timer has elapsed. This prevents anything (like Windows randomly refreshing the WebDAV contents) from interrupt the RT4K boot or firmware update.</td></tr>
+        </table>
+    </div>
+    <div class='w3-panel w3-right-align' style="max-width: 1000px;"><input type="submit" value="Save"></div>
+</form>

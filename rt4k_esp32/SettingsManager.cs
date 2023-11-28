@@ -6,7 +6,7 @@ namespace rt4k_esp32
     internal class SettingsManager
     {
         private const string SETTINGS_FILE = "I:\\rt4k_config.json";
-        private SettingsFile settingsFile;
+        private readonly SettingsFile settingsFile;
 
         internal delegate void LogDelegate(string message);
         private readonly LogDelegate Log;
@@ -45,6 +45,7 @@ namespace rt4k_esp32
             set
             {
                 settingsFile.wifiDelay = value;
+                Log($"Updating setting wifiDelay: {value}");
                 UpdateSettingsFile();
             }
         }
@@ -55,6 +56,7 @@ namespace rt4k_esp32
             set
             {
                 settingsFile.lockSdForWifiDelay = value;
+                Log($"Updating setting lockSdForWifiDelay: {value}");
                 UpdateSettingsFile();
             }
         }

@@ -9,6 +9,8 @@ namespace rt4k_esp32
 {
     public class Program
     {
+        public const string VERSION = "v1.0.0";
+
         public static Queue webLog;
 
         private static SdManager sdManager;
@@ -19,8 +21,7 @@ namespace rt4k_esp32
         public static void Main()
         {
             webLog = new Queue();
-            Log("RT4K SD booting. Hello from the .NET nanoFramework!");
-
+            Log($"RT4K ESP32 {VERSION} booting. Hello from the .NET nanoFramework!");
 
             //// Dump the boot log to ONLY the debug log if it exists
             //try
@@ -42,13 +43,13 @@ namespace rt4k_esp32
 
             // The GPIO controller used by FileManager can't be initialized in a constructor, so delay creating it to here.
 
-            NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.Internal, out uint totalInt, out _, out _);
-            NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.SpiRam, out uint totalSpi, out _, out _);
+            NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.Internal, out uint totalInt, out uint totalIntFree, out _);
+            NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.SpiRam, out uint totalSpi, out uint totalSpiFree, out _);
 
-            Log($"Total RAM: {totalInt / 1024} KiB internal, {totalSpi / 1024} KiB SPI PSRAM");
-            Log($"Target: {SystemInfo.Platform}: {SystemInfo.TargetName}");
+            Log($"Unreserved RAM: {totalInt / 1024} KiB internal, {totalSpi / 1024} KiB SPI PSRAM");
+            Log($"Unused RAM: {totalIntFree / 1024} KiB internal, {totalSpiFree / 1024} KiB SPI PSRAM");
+            Log($"Target: {SystemInfo.Platform} ({SystemInfo.TargetName} - v{SystemInfo.Version})");
             Log($"OEM: {SystemInfo.OEMString}");
-            Log($"Version: {SystemInfo.Version}");
             Log($"FPU: {(int)SystemInfo.FloatingPointSupport switch { 0 => "None", 1 => "SinglePrecisionSoftware", 2 => "SinglePrecisionHardware", 3 => "DoublePrecisionSoftware", 4 => "DoublePrecisionHardware", _ => "Unknown" }}");
 
             if (File.Exists("I:\\disableWifi"))

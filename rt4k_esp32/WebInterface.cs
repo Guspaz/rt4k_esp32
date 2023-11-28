@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -176,9 +177,10 @@ namespace rt4k_esp32
                         string ip = IPGlobalProperties.GetIPAddress().ToString();
                         sw.WriteLine("<h1>Status</h1>");
                         sw.WriteLine("<div class='w3-panel'><table class='w3-table-all w3-card' style='max-width: 700px;'>");
-                        sw.WriteLine($"<tr><th width='200px'>Wifi SSID</th><td>{WifiManager.SSID}</td></tr>");
+                        sw.WriteLine($"<tr><th width='250px'>Wifi SSID</th><td>{WifiManager.SSID}</td></tr>");
                         sw.WriteLine($"<tr><th>IP Address</th><td>{ip}</td></tr>");
                         sw.WriteLine($"<tr><th>WebDAV Address</th><td><a href='http://{ip}:{WebDav.Port}'>http://{ip}:{WebDav.Port}</a></td></tr>");
+                        sw.WriteLine($"<tr><th>RT4K ESP32 Firmware</th><td>{Program.VERSION}</td></tr>");
                         sw.WriteLine($"</table></div>");
 
                         NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.Internal, out uint totalInt, out uint totalIntFree, out _);
@@ -199,6 +201,28 @@ namespace rt4k_esp32
                         break;
 
                     case "/settings":
+                        if (context.Request.HttpMethod.ToLower() == "post")
+                        {
+                            var formData = ParseUrlParams(ReadRequest(context));
+
+                            string wifiDelayString = (string)formData["wifiDelay"];
+                            bool lockSD = (string)formData["lockSD"] == "on";
+
+                            bool validDelay = Int32.TryParse(wifiDelayString, out int wifiDelay);
+
+                            // TODO: Somehow preserve other settings if only one setting is wrong?
+                            if (!validDelay || wifiDelay < 0 || wifiDelay > 120)
+                            {
+                                // TODO: Think of a better way to handle errors on non-redirecting pages
+                                sw.WriteLine($"<div class=\"w3-panel w3-card w3-red w3-round-large\"><p><b>ERROR: Wifi delay must be between 0 and 120 seconds</b></p></div>");
+                            }
+                            else
+                            {
+                                settings.WifiDelay = wifiDelay;
+                                settings.LockSdForWifiDelay = lockSD;
+                            }
+                        }
+
                         sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.settings).TrimStart('\u0001'));
                         sw.WriteLine("<script>");
                         sw.WriteLine($"document.getElementById('wifiDelay').value = '{settings.WifiDelay}';");

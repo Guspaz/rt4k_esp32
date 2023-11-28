@@ -4,7 +4,7 @@ namespace rt4k_esp32
 {
     internal class Profile
     {
-        private byte[] profileData;
+        private readonly byte[] profileData;
 
         private const int RT4K_PROFILE_CRC_OFFSET = 32;
         private const int RT4K_PROFILE_HEADER_SIZE = 128;
