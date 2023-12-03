@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using nanoFramework.Json;
 
 namespace rt4k_esp32
@@ -11,11 +12,13 @@ namespace rt4k_esp32
         internal delegate void LogDelegate(string message);
         private readonly LogDelegate Log;
 
+        public bool SdWaitOver { get; private set; }
+
         internal SettingsManager(LogDelegate logFunc)
         {
             Log = logFunc;
 
-            Log("FileManager starting up");
+            Log("SettingsManager starting up");
 
             // No need to use the FileManager for internal ESP32 storage
             if (File.Exists(SETTINGS_FILE))
@@ -29,22 +32,24 @@ namespace rt4k_esp32
             {
                 settingsFile = new SettingsFile
                 {
-                    wifiDelay = 30,
-                    lockSdForWifiDelay = true
+                    WifiDelay = 30,
+                    LockSdForWifiDelay = true
                 };
 
                 UpdateSettingsFile();
             }
 
-            Log("FileManager started");
+            new Thread(() => { Thread.Sleep(settingsFile.WifiDelay * 1000); SdWaitOver = true; }).Start();
+
+            Log("SettingsManager started");
         }
 
         public int WifiDelay
         {
-            get => settingsFile.wifiDelay;
+            get => settingsFile.WifiDelay;
             set
             {
-                settingsFile.wifiDelay = value;
+                settingsFile.WifiDelay = value;
                 Log($"Updating setting wifiDelay: {value}");
                 UpdateSettingsFile();
             }
@@ -52,10 +57,10 @@ namespace rt4k_esp32
 
         public bool LockSdForWifiDelay
         {
-            get => settingsFile.lockSdForWifiDelay;
+            get => settingsFile.LockSdForWifiDelay;
             set
             {
-                settingsFile.lockSdForWifiDelay = value;
+                settingsFile.LockSdForWifiDelay = value;
                 Log($"Updating setting lockSdForWifiDelay: {value}");
                 UpdateSettingsFile();
             }

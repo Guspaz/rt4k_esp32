@@ -15,11 +15,12 @@ namespace rt4k_esp32
 
         private readonly LogDelegate Log;
         private readonly FileManager fileManager;
+        private readonly SettingsManager settings;
         private string cachedWifiCredsHash;
 
         public static string SSID = string.Empty;
 
-        internal WifiManager(LogDelegate logFunc, FileManager fileManager)
+        internal WifiManager(LogDelegate logFunc, FileManager fileManager, SettingsManager settingsManager)
         {
             Log = logFunc;
 
@@ -27,6 +28,8 @@ namespace rt4k_esp32
 
             this.fileManager = fileManager;
             this.fileManager.WifiIniUpdated += UpdateCachedWifiCreds;
+
+            this.settings = settingsManager;
 
             Log("WifiManager started");
         }
@@ -57,9 +60,12 @@ namespace rt4k_esp32
 
                 new Thread(() =>
                 {
-                    Log("Scheduling check of wifi credentials on SD card in 30 seconds");
-                    Thread.Sleep(30000);
-                    Log($"Current time after boot: {HighResTimer.GetCurrent() / 1000000f}s");
+                    Log($"Scheduling check of wifi credentials on SD card in {settings.WifiDelay} seconds");
+                    
+                    while (!settings.SdWaitOver)
+                    {
+                        Thread.Sleep(100);
+                    }
 
                     Log("Comparing wifi credentials in cache to SD card");
 

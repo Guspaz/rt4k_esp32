@@ -29,10 +29,12 @@ namespace rt4k_esp32
         private readonly Timer releaseTimer;
         private bool pinsReady = false;
         private readonly LogDelegate Log;
+        private readonly SettingsManager settings;
 
-        internal SdManager(LogDelegate logDelegate)
+        internal SdManager(LogDelegate logDelegate, SettingsManager settingsManager)
         {
             Log = logDelegate;
+            settings = settingsManager;
             Log("SdManager starting up");
 
             releaseTimer = new Timer(ReleaseCallback, null, Timeout.Infinite, Timeout.Infinite);
@@ -75,6 +77,18 @@ namespace rt4k_esp32
 
         internal void GrabSD()
         {
+            // If we're fully locking the SD until the wifi delay is over, just block here
+            // TODO: make this more graceful somehow
+            if (settings.LockSdForWifiDelay && !settings.SdWaitOver)
+            {
+                Log($"SD access requested but SD card is still locked, waiting for lock period to expire.");
+
+                while (!settings.SdWaitOver)
+                {
+                    Thread.Sleep(0);
+                }
+            }
+
             Monitor.Enter(gpio);
 
             if (!pinsReady)

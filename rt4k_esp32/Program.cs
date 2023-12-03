@@ -60,9 +60,9 @@ namespace rt4k_esp32
             }
 
             settingsManager = new SettingsManager(Log);
-            sdManager = new SdManager(Log);
+            sdManager = new SdManager(Log, settingsManager);
             fileManager = new FileManager(Log, sdManager);
-            wifiManager = new WifiManager(Log, fileManager);
+            wifiManager = new WifiManager(Log, fileManager, settingsManager);
 
             wifiManager.WifiBoot();
 
