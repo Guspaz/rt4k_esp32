@@ -39,7 +39,7 @@ namespace rt4k_esp32
                 UpdateSettingsFile();
             }
 
-            new Thread(() => { Thread.Sleep(settingsFile.WifiDelay * 1000); SdWaitOver = true; }).Start();
+            new Thread(() => { Thread.Sleep(settingsFile.WifiDelay * 1000); SdWaitOver = true; Log($"Releasing SD lock ({settingsFile.WifiDelay} seconds elapsed)."); }).Start();
 
             Log("SettingsManager started");
         }

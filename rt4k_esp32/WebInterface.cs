@@ -66,6 +66,7 @@ namespace rt4k_esp32
                 // First, handle commands that don't generate a page.
                 switch (baseURL)
                 {
+                    // TODO: This is broken after settings page update, redo it
                     case "/disableWifi":
                         Log(" ***** Disabling wifi next boot, remove and re-insert SD card to reboot it");
                         File.Create("I:\\disableWifi");

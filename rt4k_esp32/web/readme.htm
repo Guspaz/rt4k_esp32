@@ -1,28 +1,33 @@
 <script type="text/javascript" src='showdown.min.js'></script>
 <script>var converter = new showdown.Converter({ noHeaderId: true, disableForced4SpacesIndentedSublists: true, simplifiedAutoLink: true });</script>
 <h1>Readme</h1>
+<style>ul li { padding: 5px 0px; }</style>
 <script>
     var text = `
-- The ESP32 will boot the moment the SD card gets power.
+- To connect to wifi, copy a "wifi.ini" file into the root of the SD card with the following format:
+    - ssid = &lt;ssid\\_here&gt;<br>
+password = &lt;password\\_here&gt;
+- The ESP32 will start booting the instant the SD card gets power.
     - The RT4K always powers the SD slot even when the RT4K is off, as long as the RT4K power cable is plugged in.
 - Any time the ESP32 accesses the SD card (read or write), it will temporarily disconnect the SD card from the host device (such as the RT4K or Windows)
     - Windows hates this and will unmount the SD card until you physically unplug/replug it
     - The RT4K is fine with it, as long as it's not booting or updating the firmware
-- In order to avoid killing the RT4K boot, the ESP32 will try to load the wifi credentials from its internal cache when it boots, NOT the SD card.
-    - It will wait 30 seconds after boot to check the wifi.ini file on the SD card to see if there are updated credentials to use
-    - If the wifi.ini file is different from the cached credentials, it will update the cache and reboot the ESP32
-    - You have 30 seconds after connecting the SD card to a Windows PC to copy in a wifi.ini file on the first boot before Windows loses the connection
-- WebDAV is slow. If you need high-speed transfer, use the "Disable wifi next boot" button
+- In order to avoid interfering with the RT4K boot or firmware updates, the ESP32 will refuse to try to access the SD card for the first 30 seconds after it boots
+	- You can change the timer on the settings page
+	- You can disable the locking and have it just delay reading the wifi.ini file, since that also disrupts RT4K boot/firmware updates.
+- **WARNING!** WebDAV is very slow. If it's too slow, use the "Disable wifi next boot" button:
     - Click the button
-    - Wait a few seconds
-    - Unplug the SD card (from the RT4K or wherever it's currently connected)
+    - Wait for the confirmation
+    - Unplug the SD card from the RT4K (or other device)
     - Plug the SD card into its reader connected to your PC
-        - If using the SD-WIFI-PRO dev board as your reader, make sure the "SD ESP" dipswitch is set to "SD" and the "RD UPLD" dipswitch is set to "RD"
+        - If using the SD-WIFI-PRO dev board as your reader, make sure the "SD ESP" dipswitch (1) is set to "SD" (OFF) and the "RD UPLD" dipswitch (2) is set to "RD" (OFF)
     - The SD card will now be mounted to your Windows machine and you can move stuff around with high performance
     - Unplug the SD card and plug it back into the RT4K. It should now boot back up again with wifi enabled.
+- To install on a fresh SD-WIFI-PRO:
+	- TODO: Instructions here
 - To update the ESP32 firmware
-    - These instructions are for Windows, MacOS and Linux are supported, check here for instructions: https://github.com/nanoframework/nanoFirmwareFlasher
-    - Using the SD-WIFI-PRO dev board, set the "RD UPLD" dip switch to the "RD UPLD" setting
+    - These instructions are for Windows. MacOS and Linux are supported, check here for instructions: https://github.com/nanoframework/nanoFirmwareFlasher
+    - Using the SD-WIFI-PRO dev board, set the "RD UPLD" dipswitch (2) to the "UPLD" (ON) position
     - Plug the SD-WIFI-PRO into the dev board and connect the dev board to your PC
     - Open a command prompt
     - Install the "nanoff" tool by typing: <pre>dotnet tool install -g nanoff</pre>
