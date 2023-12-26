@@ -4,9 +4,41 @@
 <style>ul li { padding: 5px 0px; }</style>
 <script>
     var text = `
-- To connect to wifi, copy a "wifi.ini" file into the root of the SD card with the following format:
-    - ssid = &lt;ssid\\_here&gt;<br>
-password = &lt;password\\_here&gt;
+## Table of Contents
+- [Installing/Updating](#install)
+- [Connecting to wifi](#wifi)
+- [General Use](#general)
+
+<a id='install'></a>
+### Installing/Updating
+- These instructions are for Windows. MacOS and Linux are supported, check here for instructions: https://github.com/nanoframework/nanoFirmwareFlasher
+- Using the SD-WIFI-PRO dev board, set the "RD UPLD" dipswitch (2) to the "UPLD" (ON) position
+- Plug the SD-WIFI-PRO into the dev board and connect the dev board to your PC
+- Open a command prompt
+- If you have not already, install the "nanoff" tool by typing: <pre>dotnet tool install -g nanoff</pre>
+	- You can update the "nanoff" tool later by typing: <pre>dotnet tool update -g nanoff</pre>
+- If you have not already, figure out which COM port it connected to by running: <pre>nanoff --listports</pre>
+	- If you see multiple COM ports listed, follow these instructions on Windows: https://github.com/nanoframework/nanoFirmwareFlasher#finding-the-device-com-port-on-windows
+- From the same directory as the rt4k\\\_esp32 bin files
+	- Install the base firmware with the following command: <pre>nanoff --update --platform esp32 --serialport COM3 --clrfile nanoCLR.bin
+	- Deploy the rt4k\\\_esp32 application with the following command: <pre>nanoff --target ESP32\\\_PSRAM\\\_REV0 --serialport COM3 --deploy --image rt4k\\\_esp32.bin</pre>
+- Unplug the SD card and plug it in again, either with the dev board in SD reader mode, or into your RT4K.
+
+<a id='wifi'></a>
+### Connecting to wifi
+- Prepare (in advance) a "wifi.ini" file with the following format:
+	- <pre>ssid = &lt;ssid\_here&gt;
+password = &lt;password\_here&gt;</pre>
+- Connect the RT4K to a PC using its dev board with the "SD ESP" dipswitch (1) is set to "SD" (OFF) and the "RD UPLD" dipswitch (2) is set to "RD" (OFF)
+- On a fresh install, you will have 30 seconds to copy the "wifi.ini" file to the root of the SD card
+	- After 30 seconds, the ESP32 will try to read the wifi.ini file, which will cause Windows to disconnect it.
+	- You can change this timer on the settings page of the web UI (the delay is to give the RT4K time to boot or do firmware updates, I hope to be able to remove the delay in the future after some RT4K firmware changes)
+- When the ESP32 boots, it will immediately try to connect to the wifi network in its internal cache. After 30 seconds, it will read the wifi.ini file, and if it's different from the cache, it will update the internal cache and reboot.
+- After the ESP32 connects to the wifi, it will write its IP address to "ipAddress.txt" in the root of the SD card. You can either look at your router to try to find the IP address (it will be listed as "nanodevice_&lt;something&gt;"), or you can connect the SD card to a PC to read the ipAddress.txt file (it will probably get the same IP address again when it reconnects). I suggest setting up a static IP in your router configuration so that you always know the IP address.
+
+
+<a id='general'></a>
+### General Use
 - The ESP32 will start booting the instant the SD card gets power.
     - The RT4K always powers the SD slot even when the RT4K is off, as long as the RT4K power cable is plugged in.
 - Any time the ESP32 accesses the SD card (read or write), it will temporarily disconnect the SD card from the host device (such as the RT4K or Windows)
@@ -23,18 +55,5 @@ password = &lt;password\\_here&gt;
         - If using the SD-WIFI-PRO dev board as your reader, make sure the "SD ESP" dipswitch (1) is set to "SD" (OFF) and the "RD UPLD" dipswitch (2) is set to "RD" (OFF)
     - The SD card will now be mounted to your Windows machine and you can move stuff around with high performance
     - Unplug the SD card and plug it back into the RT4K. It should now boot back up again with wifi enabled.
-- To install on a fresh SD-WIFI-PRO:
-	- TODO: Instructions here
-- To update the ESP32 firmware
-    - These instructions are for Windows. MacOS and Linux are supported, check here for instructions: https://github.com/nanoframework/nanoFirmwareFlasher
-    - Using the SD-WIFI-PRO dev board, set the "RD UPLD" dipswitch (2) to the "UPLD" (ON) position
-    - Plug the SD-WIFI-PRO into the dev board and connect the dev board to your PC
-    - Open a command prompt
-    - Install the "nanoff" tool by typing: <pre>dotnet tool install -g nanoff</pre>
-        - You can update the "nanoff" tool later by typing: <pre>dotnet tool update -g nanoff</pre>
-    - Figure out which COM port it connected to by running: <pre>nanoff --listports</pre>
-        - If you see multiple COM ports listed, follow these instructions on Windows: https://github.com/nanoframework/nanoFirmwareFlasher#finding-the-device-com-port-on-windows
-    - Update the firmware with the following command: <pre>nanoff --target ESP32\_PSRAM\_REV0 --serialport COM12 --deploy --image "C:\\example\\path\\rt4k_esp32.bin"</pre>
-    - Unplug the SD card and plug it in again, either with the dev board in SD reader mode, or into your RT4K.
     `; document.write(converter.makeHtml(text));
 </script>
