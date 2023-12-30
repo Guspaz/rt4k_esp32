@@ -79,7 +79,7 @@ namespace rt4k_esp32
         {
             // If we're fully locking the SD until the wifi delay is over, just block here
             // TODO: make this more graceful somehow
-            if (settings.LockSdForWifiDelay && !settings.SdWaitOver)
+            if (!settings.BootLockWifiOnly && !settings.SdWaitOver)
             {
                 Log($"SD access requested but SD card is still locked, waiting for lock period to expire.");
 

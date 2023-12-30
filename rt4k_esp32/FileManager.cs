@@ -501,12 +501,6 @@ namespace rt4k_esp32
                 var fileProperties = new FileProperties
                 {
                     FileSize = GetLengthInternal(path),
-
-                    //var storageFile = StorageFile.GetFileFromPath(path);
-
-                    // TODO: Figure out how to get created dates, this doesn't work.
-                    //fileProperties.CreatedDate = storageFile.DateCreated;
-                    //fileProperties.ContentType = storageFile.ContentType;
                     LastModifiedDate = File.GetLastWriteTime(path)
                 };
 

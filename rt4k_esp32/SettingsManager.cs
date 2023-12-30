@@ -32,36 +32,36 @@ namespace rt4k_esp32
             {
                 settingsFile = new SettingsFile
                 {
-                    WifiDelay = 30,
-                    LockSdForWifiDelay = true
+                    BootLockDelay = 30,
+                    BootLockWifiOnly = false
                 };
 
                 UpdateSettingsFile();
             }
 
-            new Thread(() => { Thread.Sleep(settingsFile.WifiDelay * 1000); SdWaitOver = true; Log($"Releasing SD lock ({settingsFile.WifiDelay} seconds elapsed)."); }).Start();
+            new Thread(() => { Thread.Sleep(settingsFile.BootLockDelay * 1000); SdWaitOver = true; Log($"Releasing SD lock ({settingsFile.BootLockDelay} seconds elapsed)."); }).Start();
 
             Log("SettingsManager started");
         }
 
-        public int WifiDelay
+        public int BootLockDelay
         {
-            get => settingsFile.WifiDelay;
+            get => settingsFile.BootLockDelay;
             set
             {
-                settingsFile.WifiDelay = value;
-                Log($"Updating setting wifiDelay: {value}");
+                settingsFile.BootLockDelay = value;
+                Log($"Updating setting bootLockDelay: {value}");
                 UpdateSettingsFile();
             }
         }
 
-        public bool LockSdForWifiDelay
+        public bool BootLockWifiOnly
         {
-            get => settingsFile.LockSdForWifiDelay;
+            get => settingsFile.BootLockWifiOnly;
             set
             {
-                settingsFile.LockSdForWifiDelay = value;
-                Log($"Updating setting lockSdForWifiDelay: {value}");
+                settingsFile.BootLockWifiOnly = value;
+                Log($"Updating setting bootLockWifiOnly: {value}");
                 UpdateSettingsFile();
             }
         }

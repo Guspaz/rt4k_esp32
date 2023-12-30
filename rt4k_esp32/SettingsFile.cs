@@ -2,7 +2,7 @@
 {
     internal class SettingsFile
     {
-        public int WifiDelay { get; set; }
-        public bool LockSdForWifiDelay { get; set; }
+        public int BootLockDelay { get; set; }
+        public bool BootLockWifiOnly { get; set; }
     }
 }

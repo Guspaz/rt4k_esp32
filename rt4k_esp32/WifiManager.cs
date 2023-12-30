@@ -60,7 +60,7 @@ namespace rt4k_esp32
 
                 new Thread(() =>
                 {
-                    Log($"Scheduling check of wifi credentials on SD card in {settings.WifiDelay} seconds");
+                    Log($"Scheduling check of wifi credentials on SD card in {settings.BootLockDelay} seconds");
                     
                     while (!settings.SdWaitOver)
                     {

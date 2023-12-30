@@ -46,6 +46,7 @@ namespace rt4k_esp32
         [System.SerializableAttribute()]
         internal enum BinaryResources : short
         {
+            favicon = -22914,
             calc_js = -6291,
             showdown_min_js = 7148,
         }

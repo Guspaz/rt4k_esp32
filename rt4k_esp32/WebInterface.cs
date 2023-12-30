@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Text;
 using System.Web;
 using nanoFramework.Hardware.Esp32;
 using nanoFramework.Runtime.Native;
@@ -49,6 +50,12 @@ namespace rt4k_esp32
                 context.Response.OutputStream.Write(calcJs, 0, calcJs.Length);
                 return;
             }
+            else if (context.Request.RawUrl == "/favicon.ico")
+            {
+                context.Response.ContentType = "image/x-icon";
+                var favicon = WebFiles.GetBytes(WebFiles.BinaryResources.favicon);
+                context.Response.OutputStream.Write(favicon, 0, favicon.Length);
+            }
 
             var sw = new StreamWriter(context.Response.OutputStream);
 
@@ -66,7 +73,6 @@ namespace rt4k_esp32
                 // First, handle commands that don't generate a page.
                 switch (baseURL)
                 {
-                    // TODO: This is broken after settings page update, redo it
                     case "/disableWifi":
                         Log(" ***** Disabling wifi next boot, remove and re-insert SD card to reboot it");
                         File.Create("I:\\disableWifi");
@@ -142,12 +148,7 @@ namespace rt4k_esp32
 
                         Log($"Updated {filesEdited} out of {files.Length} files");
 
-                        // TODO: Implement actual bulk edit
                         // TODO: Checksum calculation is slow, so do it in a thread, report progress back, and skip files that don't need to be updated.
-
-                        //byte[] profileData = fm.ReadFileRaw("/profile/test_blankcrc.rt4");
-                        //Profile profile = new Profile(profileData);
-                        //fm.WriteFileRaw("/profile/test_result.rt4", profile.Save());
 
                         Redirect(context, "/actions", success: "Bulk profile edit completed");
                         return;
@@ -176,12 +177,15 @@ namespace rt4k_esp32
                 {
                     case "/":
                         string ip = IPGlobalProperties.GetIPAddress().ToString();
+                        TimeSpan timeSinceManagedBootSpan = new TimeSpan((long)((HighResTimer.GetCurrent() - Program.ManagedBootTime) * 10));
+
                         sw.WriteLine("<h1>Status</h1>");
                         sw.WriteLine("<div class='w3-panel'><table class='w3-table-all w3-card' style='max-width: 700px;'>");
                         sw.WriteLine($"<tr><th width='250px'>Wifi SSID</th><td>{WifiManager.SSID}</td></tr>");
                         sw.WriteLine($"<tr><th>IP Address</th><td>{ip}</td></tr>");
                         sw.WriteLine($"<tr><th>WebDAV Address</th><td><a href='http://{ip}:{WebDav.Port}'>http://{ip}:{WebDav.Port}</a></td></tr>");
                         sw.WriteLine($"<tr><th>RT4K ESP32 Firmware</th><td>{Program.VERSION}</td></tr>");
+                        sw.WriteLine($"<tr><th>Uptime</th><td>{FormatTimeSpan(timeSinceManagedBootSpan)}</td></tr>");
                         sw.WriteLine($"</table></div>");
 
                         NativeMemory.GetMemoryInfo(NativeMemory.MemoryType.Internal, out uint totalInt, out uint totalIntFree, out _);
@@ -206,28 +210,28 @@ namespace rt4k_esp32
                         {
                             var formData = ParseUrlParams(ReadRequest(context));
 
-                            string wifiDelayString = (string)formData["wifiDelay"];
-                            bool lockSD = (string)formData["lockSD"] == "on";
+                            string bootLockDelayString = (string)formData["bootLockDelay"];
+                            bool bootLockWifiOnly = (string)formData["bootLockWifiOnly"] == "on";
 
-                            bool validDelay = Int32.TryParse(wifiDelayString, out int wifiDelay);
+                            bool validDelay = Int32.TryParse(bootLockDelayString, out int bootLockDelay);
 
                             // TODO: Somehow preserve other settings if only one setting is wrong?
-                            if (!validDelay || wifiDelay < 0 || wifiDelay > 120)
+                            if (!validDelay || bootLockDelay < 0 || bootLockDelay > 120)
                             {
                                 // TODO: Think of a better way to handle errors on non-redirecting pages
-                                sw.WriteLine($"<div class=\"w3-panel w3-card w3-red w3-round-large\"><p><b>ERROR: Wifi delay must be between 0 and 120 seconds</b></p></div>");
+                                sw.WriteLine($"<div class=\"w3-panel w3-card w3-red w3-round-large\"><p><b>ERROR: Boot SD lock delay must be between 0 and 120 seconds</b></p></div>");
                             }
                             else
                             {
-                                settings.WifiDelay = wifiDelay;
-                                settings.LockSdForWifiDelay = lockSD;
+                                settings.BootLockDelay = bootLockDelay;
+                                settings.BootLockWifiOnly = bootLockWifiOnly;
                             }
                         }
 
                         sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.settings).TrimStart('\u0001'));
                         sw.WriteLine("<script>");
-                        sw.WriteLine($"document.getElementById('wifiDelay').value = '{settings.WifiDelay}';");
-                        sw.WriteLine($"document.getElementById('lockSdForWifiDelay').checked = {settings.LockSdForWifiDelay.ToString().ToLower()};");
+                        sw.WriteLine($"document.getElementById('bootLockDelay').value = '{settings.BootLockDelay}';");
+                        sw.WriteLine($"document.getElementById('bootLockWifiOnly').checked = {settings.BootLockWifiOnly.ToString().ToLower()};");
                         sw.WriteLine("</script>");
                         return;
 
@@ -284,6 +288,18 @@ namespace rt4k_esp32
         {
             context.Response.StatusCode = (int)statusCode;
             context.Response.ContentLength64 = 0;
+        }
+
+        public static string FormatTimeSpan(TimeSpan span)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (span.Days > 0) { sb.Append($"{span.Days} day{(span.Days != 1 ? "s" : "")}, "); }
+            if (span.Hours > 0) { sb.Append($"{span.Hours} hour{(span.Hours != 1 ? "s" : "")}, "); }
+            if (span.Minutes > 0) { sb.Append($"{span.Minutes} minute{(span.Minutes != 1 ? "s" : "")}, "); }
+            sb.Append($"{span.Seconds} second{(span.Seconds != 1 ? "s" : "")}");
+
+            return sb.ToString();
         }
     }
 }

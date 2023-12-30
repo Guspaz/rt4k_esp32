@@ -16,7 +16,7 @@ namespace rt4k_esp32
         private readonly int Port;
         private readonly string Name;
         private HttpListener httpListener;
-        private ConsumerThreadPool threadPool;
+        private readonly ConsumerThreadPool threadPool;
 
         public WebServer(LogDelegate log, int port, string name)
         {

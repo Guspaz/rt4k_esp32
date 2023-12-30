@@ -16,7 +16,7 @@ namespace rt4k_esp32
 
         public static int Port;
 
-        private Hashtable locks = new Hashtable();
+        private readonly Hashtable locks = new();
 
         public WebDav(FileManager fileManager, LogDelegate log, int port) : base(log, port, "WebDAV")
         {
@@ -251,7 +251,6 @@ namespace rt4k_esp32
             context.Response.StatusCode = (int)HttpStatusCode.NoContent;
 
             var path = GetPath(context);
-            string guid = Guid.NewGuid().ToString();
             if (locks.Contains(path))
             {
                 locks.Remove(path);
