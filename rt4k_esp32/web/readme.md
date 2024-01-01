@@ -5,6 +5,7 @@
 - [Connecting to wifi](#wifi)
 - [General Use](#general)
 - [Using WebDAV](#webdav)
+- [Building](#building)
 - [Future Plans](#future)
 
 <a id='install'></a>
@@ -62,6 +63,15 @@ password = &lt;password\_here&gt;</pre>
 - To access the contents of the SD card using WebDAV, open a new Windows Explorer window, right click inside the window and select "Add a network location".
 	- In the wizard that follows, copy the WebDAV address from the ESP32 status page to the Windows wizard, and give the network location an appropriate name.
 - You can also map a drive letter to the WebDAV server exactly the same way you would map a network drive over SMB (Windows File Sharing), only use the WebDAV address for the folder field.
+
+<a id='building'></a>
+### Building
+- Source for the managed portion can be found here: https://github.com/Guspaz/rt4k_esp32
+	- To build it, install the nanoFramework in visual studio and build
+- Source code for the modified nanoFramework firmware can be found here: https://github.com/Guspaz/nf-interpreter
+	- Primary change is increasing the SPI PSRAM clockspeed to 80 MHz for more performance
+	- To build it, follow the nanoFramework instructions for building nf-interpreter (I used the container build approach) and set the appropriate target (ESP32_PSRAM_REV3)
+	- This should all also run fine using the default firmware with target ESP32_PSRAM_REV3, albeit slightly slower
 
 <a id='future'></a>
 ### Future Plans/ideas (in no particular order)
