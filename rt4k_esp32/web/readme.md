@@ -1,5 +1,4 @@
-﻿<style>ul li { padding: 5px 0px; }</style>
-# Readme
+﻿# Readme
 
 ## Table of Contents
 - [Installing/Updating](#install)
