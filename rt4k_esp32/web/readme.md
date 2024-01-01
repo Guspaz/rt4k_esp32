@@ -14,7 +14,8 @@
 - Using the SD-WIFI-PRO dev board, set the "RD UPLD" dipswitch (2) to the "UPLD" (ON) position
 - Plug the SD-WIFI-PRO into the dev board and connect the dev board to your PC
 - Open a command prompt
-- If you have not already, install the "nanoff" tool by typing: <pre>dotnet tool install -g nanoff</pre>
+- If you have not already, install the "nanoff" tool by typing: <pre>dotnet tool install -g nanoff --version 2.5.46</pre>
+	- Versions 2.5.47 - 2.5.52 are broken, if newer fixed versions are available, you can update to them, otherwise stick to 2.5.46 for now
 	- You can update the "nanoff" tool later by typing: <pre>dotnet tool update -g nanoff</pre>
 - If you have not already, figure out which COM port it connected to by running: <pre>nanoff --listports</pre>
 	- If you see multiple COM ports listed, follow these instructions on Windows: https://github.com/nanoframework/nanoFirmwareFlasher#finding-the-device-com-port-on-windows
