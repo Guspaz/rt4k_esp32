@@ -4,6 +4,7 @@
 - [Installing/Updating](#install)
 - [Connecting to wifi](#wifi)
 - [General Use](#general)
+- [Using WebDAV](#webdav)
 - [Future Plans](#future)
 
 <a id='install'></a>
@@ -53,6 +54,14 @@ password = &lt;password\_here&gt;</pre>
         - If using the SD-WIFI-PRO dev board as your reader, make sure the "SD ESP" dipswitch (1) is set to "SD" (OFF) and the "RD UPLD" dipswitch (2) is set to "RD" (OFF)
     - The SD card will now be mounted to your Windows machine and you can move stuff around with high performance
     - Unplug the SD card and plug it back into the RT4K. It should now boot back up again with wifi enabled.
+
+<a id='webdav'></a>
+### Using WebDAV
+- A very basic (written from scratch) WebDAV server is running on port 81.
+- These instructions assume Windows 11. I imagine that Windows 10 will be similar.
+- To access the contents of the SD card using WebDAV, open a new Windows Explorer window, right click inside the window and select "Add a network location".
+	- In the wizard that follows, copy the WebDAV address from the ESP32 status page to the Windows wizard, and give the network location an appropriate name.
+- You can also map a drive letter to the WebDAV server exactly the same way you would map a network drive over SMB (Windows File Sharing), only use the WebDAV address for the folder field.
 
 <a id='future'></a>
 ### Future Plans/ideas (in no particular order)
