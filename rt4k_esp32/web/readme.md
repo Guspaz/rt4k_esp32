@@ -1,9 +1,6 @@
-<script type="text/javascript" src='showdown.min.js'></script>
-<script>var converter = new showdown.Converter({ noHeaderId: true, disableForced4SpacesIndentedSublists: true, simplifiedAutoLink: true });</script>
-<h1>Readme</h1>
-<style>ul li { padding: 5px 0px; }</style>
-<script>
-    var text = `
+﻿<style>ul li { padding: 5px 0px; }</style>
+# Readme
+
 ## Table of Contents
 - [Installing/Updating](#install)
 - [Connecting to wifi](#wifi)
@@ -94,6 +91,3 @@ password = &lt;password\_here&gt;</pre>
 	- Current implementation reverts all settings if any of them are wrong
 - WebDAV should return 500 on error
 	- Right now it might just not complete the operation or disconnect
-
-    `; document.write(converter.makeHtml(text));
-</script>

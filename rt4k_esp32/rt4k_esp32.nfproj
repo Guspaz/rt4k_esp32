@@ -44,7 +44,6 @@
     <Resource Include="web\settings.htm" />
     <Resource Include="web\calc.js.gz" />
     <Resource Include="web\base_template_footer.htm" />
-    <Resource Include="web\readme.htm" />
     <Resource Include="web\showdown.min.js.gz" />
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +131,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <Resource Include="web\readme.md" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="web\favicon.ico" />

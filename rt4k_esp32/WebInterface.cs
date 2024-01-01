@@ -202,7 +202,9 @@ namespace rt4k_esp32
                         break;
 
                     case "/readme":
+                        sw.WriteLine(@"<script type='text/javascript' src='showdown.min.js'></script><script>var converter = new showdown.Converter({ noHeaderId: true, disableForced4SpacesIndentedSublists: true, simplifiedAutoLink: true });</script><script>var text = `");
                         sw.WriteLine(WebFiles.GetString(WebFiles.StringResources.readme).TrimStart('\u0001'));
+                        sw.WriteLine(@"`; document.write(converter.makeHtml(text));</script>");
                         break;
 
                     case "/settings":
