@@ -27,8 +27,7 @@
 <a id='wifi'></a>
 ### Connecting to wifi
 - Prepare (in advance) a "wifi.ini" file with the following format:
-	- <pre>ssid = &lt;ssid&#95;here&gt;
-password = &lt;password&#95;here&gt;</pre>
+	- <pre>ssid = &lt;ssid&#95;here&gt;<br>password = &lt;password&#95;here&gt;</pre>
 - Connect the RT4K to a PC using its dev board with the "SD ESP" dipswitch (1) is set to "SD" (OFF) and the "RD UPLD" dipswitch (2) is set to "RD" (OFF)
 - On a fresh install, you will have 30 seconds to copy the "wifi.ini" file to the root of the SD card
 	- After 30 seconds, the ESP32 will try to read the wifi.ini file, which will cause Windows to disconnect it.
