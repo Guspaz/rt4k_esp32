@@ -9,7 +9,7 @@ namespace rt4k_esp32
 {
     public class Program
     {
-        public const string VERSION = "v1.0.0";
+        public const string VERSION = "v1.1.0";
         public static readonly ulong ManagedBootTime = HighResTimer.GetCurrent();
 
         public static Queue webLog;

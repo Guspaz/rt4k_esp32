@@ -1,4 +1,10 @@
         <script src="calc.js" type="text/javascript"></script>
+        <script>
+            function setModeline(modelineId, number) {
+                var modeline = document.getElementById(modelineId).textContent;
+                alert(modeline);
+            }
+        </script>
         <h1>RetroTINK 4K Video Timings Calculator</h1>
 
         A simplified RT4K derivative of <a href="https://tomverbeure.github.io/video_timings_calculator">Tom Verbeure's original calculator.</a>
@@ -7,7 +13,7 @@
             <form id="parameters">
                 <table>
                     <tr>
-                        <td><label>Predefined Mode</label></td>
+                        <td><label><b>Predefined Mode</b></label></td>
                         <td><select id="predefined_mode" name="predefined_mode"><option>None</option></select></td>
                     </tr>
                     <tr>
@@ -74,7 +80,7 @@
                     <th>CEA-861</th>
                     <th>DMT</th>
                     <th>Custom</th>
-                    <th></th>
+                    <th colspan=2></th>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>Aspect Ratio</label></td>
@@ -84,7 +90,7 @@
                     <td><label id="cea-aspect_ratio"></label></td>
                     <td><label id="dmt-aspect_ratio"></label></td>
                     <td><label id="custom-aspect_ratio"></label></td>
-                    <td></td>
+                    <td colspan=2></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>Pixel Clock</label></td>
@@ -94,7 +100,7 @@
                     <td><label id="cea-pclock"></label></td>
                     <td><label id="dmt-pclock"></label></td>
                     <td><label id="custom-pclock"></label></td>
-                    <td><label>MHz</label></td>
+                    <td colspan=2><label>MHz</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>H Total</label></td>
@@ -104,7 +110,7 @@
                     <td><label id="cea-htotal"></label></td>
                     <td><label id="dmt-htotal"></label></td>
                     <td><label id="custom-htotal"></label></td>
-                    <td><label>Pixels</label></td>
+                    <td colspan=2><label>Pixels</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>H Active</label></td>
@@ -114,7 +120,7 @@
                     <td><label id="cea-hpixels"></label></td>
                     <td><label id="dmt-hpixels"></label></td>
                     <td><label id="custom-hpixels"></label></td>
-                    <td><label>Pixels</label></td>
+                    <td colspan=2><label>Pixels</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>H Blank</label></td>
@@ -124,7 +130,7 @@
                     <td><label id="cea-hblank"></label></td>
                     <td><label id="dmt-hblank"></label></td>
                     <td><input id="custom-hblank" type="text" value="80" size="6"/></td>
-                    <td><label>Pixels</label></td>
+                    <td colspan=2><label>Pixels</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>H Front Porch</label></td>
@@ -134,7 +140,7 @@
                     <td><label id="cea-hfront"></label></td>
                     <td><label id="dmt-hfront"></label></td>
                     <td></td>
-                    <td><label>Pixels</label></td>
+                    <td colspan=2><label>Pixels</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>H Sync</label></td>
@@ -144,7 +150,7 @@
                     <td><label id="cea-hsync"></label></td>
                     <td><label id="dmt-hsync"></label></td>
                     <td></td>
-                    <td><label>Pixels</label></td>
+                    <td colspan=2><label>Pixels</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>H Back Porch</label></td>
@@ -154,7 +160,7 @@
                     <td><label id="cea-hback"></label></td>
                     <td><label id="dmt-hback"></label></td>
                     <td></td>
-                    <td><label>Pixels</label></td>
+                    <td colspan=2><label>Pixels</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>H Sync Polarity</label></td>
@@ -164,7 +170,7 @@
                     <td><label id="cea-hpol"></label></td>
                     <td><label id="dmt-hpol"></label></td>
                     <td></td>
-                    <td></td>
+                    <td colspan=2></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>H Freq</label></td>
@@ -174,7 +180,7 @@
                     <td><label id="cea-hfreq"></label></td>
                     <td><label id="dmt-hfreq"></label></td>
                     <td><label id="custom-hfreq"></label></td>
-                    <td><label>kHz</label></td>
+                    <td colspan=2><label>kHz</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>H Period</label></td>
@@ -184,7 +190,7 @@
                     <td><label id="cea-hperiod"></label></td>
                     <td><label id="dmt-hperiod"></label></td>
                     <td><label id="custom-hperiod"></label></td>
-                    <td><label>us</label></td>
+                    <td colspan=2><label>us</label></td>
                 </tr>
 
                 <tr bgcolor=#ffffff>
@@ -195,7 +201,7 @@
                     <td><label id="cea-vtotal"></label></td>
                     <td><label id="dmt-vtotal"></label></td>
                     <td><label id="custom-vtotal"></label></td>
-                    <td><label>Lines</label></td>
+                    <td colspan=2><label>Lines</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>V Active</label></td>
@@ -205,7 +211,7 @@
                     <td><label id="cea-vpixels"></label></td>
                     <td><label id="dmt-vpixels"></label></td>
                     <td><label id="custom-vpixels"></label></td>
-                    <td><label>Lines</label></td>
+                    <td colspan=2><label>Lines</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>V Blank</label></td>
@@ -215,7 +221,7 @@
                     <td><label id="cea-vblank"></label></td>
                     <td><label id="dmt-vblank"></label></td>
                     <td><input id="custom-vblank" type="text" value="6" size="6"/></td>
-                    <td><label>Lines</label></td>
+                    <td colspan=2><label>Lines</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>V Blank Duration</label></td>
@@ -225,7 +231,7 @@
                     <td><label id="cea-vblank_duration"></label></td>
                     <td><label id="dmt-vblank_duration"></label></td>
                     <td><label id="custom-vblank_duration"></label></td>
-                    <td><label>us</label></td>
+                    <td colspan=2><label>us</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>V Front Porch</label></td>
@@ -235,7 +241,7 @@
                     <td><label id="cea-vfront"></label></td>
                     <td><label id="dmt-vfront"></label></td>
                     <td></td>
-                    <td><label>Lines</label></td>
+                    <td colspan=2><label>Lines</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>V Sync</label></td>
@@ -245,7 +251,7 @@
                     <td><label id="cea-vsync"></label></td>
                     <td><label id="dmt-vsync"></label></td>
                     <td></td>
-                    <td><label>Lines</label></td>
+                    <td colspan=2><label>Lines</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>V Back Porch</label></td>
@@ -255,7 +261,7 @@
                     <td><label id="cea-vback"></label></td>
                     <td><label id="dmt-vback"></label></td>
                     <td></td>
-                    <td><label>Lines</label></td>
+                    <td colspan=2><label>Lines</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>V Sync Polarity</label></td>
@@ -265,7 +271,7 @@
                     <td><label id="cea-vpol"></label></td>
                     <td><label id="dmt-vpol"></label></td>
                     <td></td>
-                    <td></td>
+                    <td colspan=2></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>V Freq</label></td>
@@ -275,7 +281,7 @@
                     <td><label id="cea-vfreq"></label></td>
                     <td><label id="dmt-vfreq"></label></td>
                     <td><label id="custom-vfreq"></label></td>
-                    <td><label>Hz</label></td>
+                    <td colspan=2><label>Hz</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>V Period</label></td>
@@ -285,7 +291,7 @@
                     <td><label id="cea-vperiod"></label></td>
                     <td><label id="dmt-vperiod"></label></td>
                     <td><label id="custom-vperiod"></label></td>
-                    <td><label>ms</label></td>
+                    <td colspan=2><label>ms</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>Peak BW (10/8)</label></td>
@@ -295,7 +301,7 @@
                     <td><label id="cea-peak_bw"></label></td>
                     <td><label id="dmt-peak_bw"></label></td>
                     <td><label id="custom-peak_bw"></label></td>
-                    <td><label>Gbps</label></td>
+                    <td colspan=2><label>Gbps</label></td>
                 </tr>
                 <!--<tr bgcolor=#ffffff>
                     <td><label>Line BW</label></td>
@@ -305,7 +311,7 @@
                     <td><label id="cea-line_bw"></label></td>
                     <td><label id="dmt-line_bw"></label></td>
                     <td><label id="custom-line_bw"></label></td>
-                    <td><label>Mbit/s</label></td>
+                    <td colspan=2><label>Mbit/s</label></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>Active BW</label></td>
@@ -315,7 +321,7 @@
                     <td><label id="cea-active_bw"></label></td>
                     <td><label id="dmt-active_bw"></label></td>
                     <td><label id="custom-active_bw"></label></td>
-                    <td><label>Mbit/s</label></td>
+                    <td colspan=2><label>Mbit/s</label></td>
                 </tr>-->
                 <tr bgcolor=#ffffff>
                     <td><label>DMT ID</label></td>
@@ -325,7 +331,7 @@
                     <td/>
                     <td><label id="dmt-dmt_id"></label></td>
                     <td></td>
-                    <td></td>
+                    <td colspan=2></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>DMT timing standard</label></td>
@@ -335,7 +341,7 @@
                     <td/>
                     <td><label id="dmt-dmt_type"></label></td>
                     <td></td>
-                    <td></td>
+                    <td colspan=2></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>Std 2-byte code</label></td>
@@ -345,7 +351,7 @@
                     <td/>
                     <td><label id="dmt-dmt_2byte_code"></label></td>
                     <td></td>
-                    <td></td>
+                    <td colspan=2></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>CVT 3-byte code</label></td>
@@ -355,7 +361,7 @@
                     <td/>
                     <td><label id="dmt-dmt_3byte_code"></label></td>
                     <td></td>
-                    <td></td>
+                    <td colspan=2></td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td><label>VIC</label></td>
@@ -365,34 +371,70 @@
                     <td><label id="cea-vic"></label></td>
                     <td/>
                     <td></td>
-                    <td></td>
+                    <td colspan=2></td>
                 </tr>
-                <tr bgcolor=#ffffff><td colspan=8><b>RT4K Custom Modelines</b></td></tr>
+                <tr bgcolor=#ffffff><td colspan=8><b>RT4K Custom Modelines</b></td><td><b>Set RT4K Modeline</b></td></tr>
                 <tr bgcolor=#ffffff>
                     <td>CVT</td>
                     <td colspan=7><code><label id="cvt-modeline"></label></code></td>
+                    <td>
+                        <button type="button" onclick="setModeline('cvt-modeline', 1)">1</button>
+                        <button type="button" onclick="setModeline('cvt-modeline', 2)">2</button>
+                        <button type="button" onclick="setModeline('cvt-modeline', 3)">3</button>
+                        <button type="button" onclick="setModeline('cvt-modeline', 4)">4</button>
+                    </td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td>CVT-RB</td>
                     <td colspan=7><code><label id="cvt_rb-modeline"></label></code></td>
+                    <td>
+                        <button type="button" onclick="setModeline('cvt_rb-modeline', 1)">1</button>
+                        <button type="button" onclick="setModeline('cvt_rb-modeline', 2)">2</button>
+                        <button type="button" onclick="setModeline('cvt_rb-modeline', 3)">3</button>
+                        <button type="button" onclick="setModeline('cvt_rb-modeline', 4)">4</button>
+                    </td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td>CVT-RBv2</td>
                     <td colspan=7><code><label id="cvt_rb2-modeline"></label></code></td>
+                    <td>
+                        <button type="button" onclick="setModeline('cvt_rb2-modeline', 1)">1</button>
+                        <button type="button" onclick="setModeline('cvt_rb2-modeline', 2)">2</button>
+                        <button type="button" onclick="setModeline('cvt_rb2-modeline', 3)">3</button>
+                        <button type="button" onclick="setModeline('cvt_rb2-modeline', 4)">4</button>
+                    </td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td>CEA-861</td>
                     <td colspan=7><code><label id="cea-modeline"></label></code></td>
+                    <td>
+                        <button type="button" onclick="setModeline('cea-modeline', 1)">1</button>
+                        <button type="button" onclick="setModeline('cea-modeline', 2)">2</button>
+                        <button type="button" onclick="setModeline('cea-modeline', 3)">3</button>
+                        <button type="button" onclick="setModeline('cea-modeline', 4)">4</button>
+                    </td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td>DMT</td>
                     <td colspan=7><code><label id="dmt-modeline"></label></code></td>
+                    <td>
+                        <button type="button" onclick="setModeline('dmt-modeline', 1)">1</button>
+                        <button type="button" onclick="setModeline('dmt-modeline', 2)">2</button>
+                        <button type="button" onclick="setModeline('dmt-modeline', 3)">3</button>
+                        <button type="button" onclick="setModeline('dmt-modeline', 4)">4</button>
+                    </td>
                 </tr>
                 <tr bgcolor=#ffffff>
                     <td>Custom</td>
                     <td colspan=7><code><label id="custom-modeline"></label></code></td>
+                    <td>
+                        <button type="button" onclick="setModeline('custom-modeline', 1)">1</button>
+                        <button type="button" onclick="setModeline('custom-modeline', 2)">2</button>
+                        <button type="button" onclick="setModeline('custom-modeline', 3)">3</button>
+                        <button type="button" onclick="setModeline('custom-modeline', 4)">4</button>
+                    </td>
                 </tr>
-                <tr bgcolor=#ffffff><td colspan=8><b>HDMI 2.0 (bandwidth)</b></td></tr>
+                <tr bgcolor=#ffffff><td colspan=9><b>HDMI 2.0 (bandwidth)</b></td></tr>
                 <tr bgcolor=#ffffff>
                     <td><label>RT4K (600 MHz)</label></td>
                     <td><label id="cvt-hdmi_2_0"></label></td>
@@ -401,7 +443,7 @@
                     <td><label id="cea-hdmi_2_0"></label></td>
                     <td><label id="dmt-hdmi_2_0"></label></td>
                     <td><label id="custom-hdmi_2_0"></label></td>
-                    <td><label>Max 18 Gbps</label></td>
+                    <td colspan=2><label>Max 18 Gbps</label></td>
                 </tr>
             </table>
             </form>
