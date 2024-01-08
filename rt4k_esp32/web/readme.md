@@ -46,6 +46,7 @@
 - In order to avoid interfering with the RT4K boot or firmware updates, the ESP32 will refuse to try to access the SD card for the first 30 seconds after it boots
 	- You can change the timer on the settings page
 	- You can disable the locking and have it just delay reading the wifi.ini file, since that also disrupts RT4K boot/firmware updates.
+- **WARNING!** This thing is super insecure, don't expose it to the Internet!
 - **WARNING!** Avoid opening the "images" folder over WebDAV! Windows will try to generate thumbnails and WebDAV will slow to a crawl!
 - **WARNING!** WebDAV is very slow! If it's too slow, use the SD card on a PC with the "Disable wifi next boot" button:
     - Click the button
