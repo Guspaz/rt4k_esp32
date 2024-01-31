@@ -1,4 +1,7 @@
-﻿# Readme
+# WARNING: DO NOT BUY AN SD-WIFI-PRO AT THIS TIME!
+## The manufacturer has changed the microcontroller in the SD-WIFI-PRO and it's now incompatible with this project. I'm currently trying to figure out if we can still get the original microcontroller or if I can make the project compatible with the new one (which has only 20% as much RAM).
+ 
+# Readme
 
 ## Table of Contents
 - [Installing/Updating](#install)
